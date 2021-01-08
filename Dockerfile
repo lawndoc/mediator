@@ -1,4 +1,4 @@
-FROM python:3.9.1
+FROM python:buster
 
 WORKDIR /run
 
@@ -10,5 +10,5 @@ EXPOSE 20001/tcp
 COPY mediator.py .
 
 # run server when container starts
-CMD [ "python", "./mediator.py" ]
+CMD [ "python3", "./mediator.py" ]
 

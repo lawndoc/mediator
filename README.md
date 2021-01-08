@@ -7,8 +7,10 @@ Mediator is an end-to-end encrypted reverse shell that doesn't require port forw
 Inspired by end-to-end encrypted chat applications, this reverse shell takes a unique approach to the client/server model of a reverse shell. This reverse shell uses:
 
 1. A client reverse shell
-2. A client hander/operator
+2. A client handler/operator
 3. A server that bridges the two connections
+
+When both a reverse shell and an operator connect to the server, the server will bridge the two connections with GNU black magic. From there, a key exchange is done between the two clients and all communication between the reverse shell and operator is encrypted. This ensures end-to-end encryption so that the server cannot snoop on the streams it is piping.
 
 ### Instructions:
 

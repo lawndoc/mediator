@@ -16,11 +16,11 @@ class Mediator:
         # create reverse shell socket and bind it to a port
         self.targetServer = socket(AF_INET, SOCK_STREAM)
         self.targetServer.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
-        self.targetServer.bind(("",20001))
+        self.targetServer.bind(("0.0.0.0",20001))
         # create operator socket and bind it to a port
         self.operatorServer = socket(AF_INET, SOCK_STREAM)
         self.operatorServer.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
-        self.operatorServer.bind(("",20000))
+        self.operatorServer.bind(("0.0.0.0",20000))
         # tell sockets to listen on respective ports for a max of 1 connection
         self.targetServer.listen(4)
         self.operatorServer.listen(4)

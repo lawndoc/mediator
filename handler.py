@@ -99,7 +99,7 @@ class Handler:
         # wait for verification that we are bridged to the reverse shell
         print("Connecting to reverse shell...")
         shellKey = self.shell.recv(1024)
-        if shellKey.decode() != "Stepping onto platform nine and three quarters...":
+        if shellKey.decode() != "I solemnly swear that I am up to no good.":
             exit()
 
     def run(self):

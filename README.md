@@ -2,7 +2,7 @@
 
 Mediator is an end-to-end encrypted reverse shell that doesn't require port forwarding for the handler.
 
-### Architecture:
+## Architecture:
 
 Inspired by end-to-end encrypted chat applications, this reverse shell takes a unique approach to the client/server model of a reverse shell. This reverse shell uses:
 
@@ -12,9 +12,9 @@ Inspired by end-to-end encrypted chat applications, this reverse shell takes a u
 
 Reverse shells and handlers connect to the mediator server with a connection key. The server queues clients according to their respective type and connection key. When both a reverse shell and an operator connect to the server with the same key, the server will bridge the two connections. From there, a key exchange is done between the two clients, and all communication between the reverse shell and operator is encrypted end-to-end. This ensures the server cannot snoop on the streams it is piping.
 
-### Instructions:
+## Instructions:
 
-**Server**
+### Server
 
 The client scripts can be run on Windows or Linux, but you'll need to stand up the server ([mediator.py](mediator.py)) on a Linux host. You can either run the server script with
 
@@ -24,7 +24,7 @@ $ python3 mediator.py
 
 or you can build a Docker image with the provided [Dockerfile](Dockerfile) and run it in a container (make sure to publish ports 20000 and 20001).
 
-**Clients**
+### Clients
 
 Both clients accept arguments for the server address and connection key.
 
@@ -86,7 +86,7 @@ shell.run()
 
 REMINDER: handlers and reverse shells will not be bridged together unless they connect to the mediator server using the same connection key within 15 seconds of each other.
 
-### Extra Info:
+## Extra Info:
 
 - You can easily create an exe for windowsTarget.py with pyinstaller using the `--onefile` flag
 

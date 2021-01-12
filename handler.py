@@ -86,12 +86,12 @@ class Handler:
         return (key, key.publickey())
 
     def keyExchange(self):
-        print("Performing key exchange...")
         try:
             self.shell.send(self.pubKey.exportKey('PEM'))
             message = self.shell.recv(1024)
             cipher = PKCS1_OAEP.new(self.privKey)
             aesKey = cipher.decrypt(message)
+            print("Key exchange successful...")
         except ValueError:
             print("ERROR: Duplicate operator waiting on server -- connection closed")
             print("Please change connection key or try again soon")

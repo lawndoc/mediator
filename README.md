@@ -26,7 +26,7 @@ or you can build a Docker image with the provided [Dockerfile](Dockerfile) and r
 
 ### Clients
 
-Both clients accept arguments for the server address and connection key.
+The clients, the handler and targets, can be used within other Python scripts or directly via the command line. In both cases, the clients can accept arguments for the server address and connection key. Usage of those arguments is described below.
 
 **Mediator server address**
 

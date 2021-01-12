@@ -133,9 +133,10 @@ if __name__ == "__main__":
     parser.add_argument("-s", "--server", dest="serverAddr", action="store",
                         help="address of mediator server",
                         default="example.com")
+    args = parser.parse_args()
     if connectionKey:
-        handler = Handler(mediatorHost=serverAddr, connectionKey=connectionKey)
+        handler = Handler(mediatorHost=args.serverAddr, connectionKey=args.connectionKey)
     else:
-        handler = Handler(mediatorHost=serverAddr)
+        handler = Handler(mediatorHost=args.serverAddr)
     handler.run()
 

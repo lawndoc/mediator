@@ -82,7 +82,7 @@ class Mediator:
             # add target to connections queue
             self.targets[targetKey.decode()] = (targetConnection, datetime.datetime.now())
             if self.logLevel >= 1:
-                print("Reverse shell connected from {}...".format(targetAddress[0]))
+                print("Reverse shell '{}' connected from {}...".format(targetKey.decode(), targetAddress[0]))
 
     def handleOperators(self):
         while True:
@@ -115,7 +115,7 @@ class Mediator:
             # add operator to connections queue
             self.operators[operatorKey.decode()] = (operatorConnection, datetime.datetime.now())
             if self.logLevel >= 1:
-                print("Operator connected from {}...".format(operatorAddress[0]))
+                print("Operator '{}' connected from {}...".format(operatorKey.decode(), operatorAddress[0]))
 
     def bridgeConnections(self):
         while True:
@@ -125,28 +125,28 @@ class Mediator:
                     # bridge connections with matching keys
                     operatorConnection = self.operators[connectionKey][0]
                     targetConnection = self.targets[connectionKey][0]
-                    self.applyBlackMagic(operatorConnection, targetConnection)
+                    self.applyBlackMagic(operatorConnection, targetConnection, connectionKey)
                     # remove connections from matching queue
                     self.operators.pop(connectionKey)
                     self.targets.pop(connectionKey)
                     continue
                 # close operator connection if timed out (waiting > 15 seconds)
-                timeout = datetime.timedelta(seconds=15) + self.operators[connectionKey][1]
+                timeout = datetime.timedelta(seconds=30) + self.operators[connectionKey][1]
                 if datetime.datetime.now() > timeout:
                     if self.logLevel >= 2:
-                        print("Operator {} timed out... Closing connection".format(self.operators[connectionKey][0].getpeername()[0]))
+                        print("Operator '{}' from {} timed out... Closing connection".format(connectionKey, self.operators[connectionKey][0].getpeername()[0]))
                     self.operators[connectionKey][0].close()
                     self.operators.pop(connectionKey)
             # close timed out target connections (waiting > 15 seconds)
             for connectionKey in list(self.targets):
-                timeout = datetime.timedelta(seconds=15) + self.targets[connectionKey][1]
+                timeout = datetime.timedelta(seconds=30) + self.targets[connectionKey][1]
                 if datetime.datetime.now() > timeout:
                     if self.logLevel >= 2:
-                        print("Target {} timed out... Closing connection".format(self.targets[connectionKey][0].getpeername()[0]))
+                        print("Target '{}' from {} timed out... Closing connection".format(connectionKey, self.targets[connectionKey][0].getpeername()[0]))
                     self.targets[connectionKey][0].close()
                     self.targets.pop(connectionKey)
 
-    def applyBlackMagic(self, operatorConnection, targetConnection):
+    def applyBlackMagic(self, operatorConnection, targetConnection, connectionKey):
         # connect the streams with GNU black magic
         fromTarget = targetConnection.makefile("rb")
         toTarget = targetConnection.makefile("wb")
@@ -161,7 +161,7 @@ class Mediator:
                                             stdout=toTarget,
                                             stderr=toTarget)
         if self.logLevel >= 1:
-            print("Operator '{}' and target '{}' bridged... Connection ID {}".format(operatorConnection.getpeername()[0], targetConnection.getpeername()[0], self.connCount))
+            print("Operator '{}' at {} bridged to target at {}... Connection ID {}".format(connectionKey, operatorConnection.getpeername()[0], targetConnection.getpeername()[0], self.connCount))
         # create thread to gracefully close connection when done
         terminatorThread = threading.Thread(target=self.waitAndTerminate,
                                             args=[targetToOperator,

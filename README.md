@@ -62,7 +62,7 @@ $ python3 handler.py -s example.com
 
 **Connection key**
 
-When two handlers or two reverse shells connect to the mediator server with the same connection key, only the first connection is queued awaiting its match. Until the queued connection either times out (15 seconds) or matches with a counterpart connection, all other clients of the same type trying to connect with the same connection key will be dropped.
+When two handlers or two reverse shells connect to the mediator server with the same connection key, only the first connection is queued awaiting its match. Until the queued connection either times out (30 seconds) or matches with a counterpart connection, all other clients of the same type trying to connect with the same connection key will be dropped.
 
 It is important to make sure each handler is using a unique connection key to avoid a race condition resulting in the wrong shell being given to an operator. 
 

@@ -92,7 +92,7 @@ class Handler:
             message = self.shell.recv(1024)
             cipher = PKCS1_OAEP.new(self.privKey)
             aesKey = cipher.decrypt(message)
-            print("Key exchange successful...")
+            print("Key exchange successful...\n")
         except ValueError:
             print("ERROR: Duplicate operator waiting on server -- connection closed")
             print("Please change connection key or try again soon")

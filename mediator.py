@@ -59,7 +59,7 @@ class Mediator:
             if self.logLevel >= 2:
                 print("Target connection initiated from {}".format(targetAddress[0]))
             targetKey = None
-            # validate connection is from our reverse shell
+            # get connection key from reverse shell for matching to operator
             ready = select.select([targetConnection], [], [], 10)
             if ready[0]:
                 targetKey = targetConnection.recv(1024)
@@ -73,7 +73,13 @@ class Mediator:
                     print("Invalid connection key '{}' sent by target {}... Closing connection".format(targetKey, targetAddress[0]))
                 targetConnection.close()
                 continue
-            # add connection to queue
+            # don't allow duplicate waiting connection keys
+            if targetKey.decode() in self.targets:
+                if self.logLevel >= 1:
+                    print("Duplicate target key... Closing connection")
+                targetConnection.close()
+                continue
+            # add target to connections queue
             self.targets[targetKey.decode()] = (targetConnection, datetime.datetime.now())
             if self.logLevel >= 1:
                 print("Reverse shell connected from {}...".format(targetAddress[0]))
@@ -85,6 +91,7 @@ class Mediator:
             if self.logLevel >= 2:
                 print("Operator connection initiated from {}".format(operatorAddress[0]))
             operatorKey = None
+            # get connection key from operator for matching to reverse shell
             ready = select.select([operatorConnection], [], [], 10)
             if ready[0]:
                 operatorKey = operatorConnection.recv(1024)
@@ -98,7 +105,14 @@ class Mediator:
                     print("Invalid connection key '{}' sent by operator {}... Closing connection".format(operatorKey, operatorAddress[0]))
                 operatorConnection.close()
                 continue
-            # add connection to queue
+            # don't allow duplicate waiting connection keys
+            if operatorKey.decode() in self.operators:
+                if self.logLevel >= 1:
+                    print("Duplicate operator key... Sending message and closing connection")
+                operatorConnection.send("DUPLICATE".encode())
+                operatorConnection.close()
+                continue
+            # add operator to connections queue
             self.operators[operatorKey.decode()] = (operatorConnection, datetime.datetime.now())
             if self.logLevel >= 1:
                 print("Operator connected from {}...".format(operatorAddress[0]))
@@ -119,12 +133,16 @@ class Mediator:
                 # close operator connection if timed out (waiting > 15 seconds)
                 timeout = datetime.timedelta(seconds=15) + self.operators[connectionKey][1]
                 if datetime.datetime.now() > timeout:
+                    if self.logLevel >= 2:
+                        print("Operator {} timed out... Closing connection".format(self.operators[connectionKey][0].getpeername()[0]))
                     self.operators[connectionKey][0].close()
                     self.operators.pop(connectionKey)
             # close timed out target connections (waiting > 15 seconds)
             for connectionKey in list(self.targets):
                 timeout = datetime.timedelta(seconds=15) + self.targets[connectionKey][1]
                 if datetime.datetime.now() > timeout:
+                    if self.logLevel >= 2:
+                        print("Target {} timed out... Closing connection".format(self.targets[connectionKey][0].getpeername()[0]))
                     self.targets[connectionKey][0].close()
                     self.targets.pop(connectionKey)
 
@@ -167,5 +185,5 @@ class Mediator:
 
 
 if __name__ == "__main__":
-    server = Mediator(logLevel=1)
+    server = Mediator(logLevel=2)
     server.handleConnections()

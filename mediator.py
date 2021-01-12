@@ -5,6 +5,7 @@ Author: C.J. May
 Description: Bridge two connections to remotely connect an operator to a reverse shell without port forwarding
 """
 
+import datetime
 import select
 from socket import *
 import subprocess
@@ -59,7 +60,7 @@ class Mediator:
                 print("Target connection initiated from {}".format(targetAddress[0]))
             targetKey = None
             # validate connection is from our reverse shell
-            ready = select.select([targetConnection], [], [], 5)
+            ready = select.select([targetConnection], [], [], 10)
             if ready[0]:
                 targetKey = targetConnection.recv(1024)
             if not targetKey:
@@ -67,13 +68,13 @@ class Mediator:
                     print("No connection key sent by target {}... Closing connection".format(targetAddress[0]))
                 targetConnection.close()
                 continue
-            if targetKey.decode() != "CHANGE ME!!!":
+            if False:  # TODO: define valid connection keys
                 if self.logLevel >= 2:
                     print("Invalid connection key '{}' sent by target {}... Closing connection".format(targetKey, targetAddress[0]))
                 targetConnection.close()
                 continue
             # add connection to queue
-            self.targets[targetKey.decode()] = targetConnection
+            self.targets[targetKey.decode()] = (targetConnection, datetime.datetime.now())
             if self.logLevel >= 1:
                 print("Reverse shell connected from {}...".format(targetAddress[0]))
 
@@ -84,7 +85,7 @@ class Mediator:
             if self.logLevel >= 2:
                 print("Operator connection initiated from {}".format(operatorAddress[0]))
             operatorKey = None
-            ready = select.select([operatorConnection], [], [], 5)
+            ready = select.select([operatorConnection], [], [], 10)
             if ready[0]:
                 operatorKey = operatorConnection.recv(1024)
             if not operatorKey:
@@ -92,13 +93,13 @@ class Mediator:
                     print("No connection key sent by operator {}... Closing connection".format(operatorAddress[0]))
                 operatorConnection.close()
                 continue
-            if operatorKey.decode() != "CHANGE ME!!!":
+            if False:  # TODO: define valid connection keys
                 if self.logLevel >= 2:
                     print("Invalid connection key '{}' sent by operator {}... Closing connection".format(operatorKey, operatorAddress[0]))
                 operatorConnection.close()
                 continue
             # add connection to queue
-            self.operators[operatorKey.decode()] = operatorConnection
+            self.operators[operatorKey.decode()] = (operatorConnection, datetime.datetime.now())
             if self.logLevel >= 1:
                 print("Operator connected from {}...".format(operatorAddress[0]))
 
@@ -108,11 +109,22 @@ class Mediator:
             for connectionKey in list(self.operators):
                 if connectionKey in self.targets:
                     # bridge connections with matching keys
-                    operatorConnection = self.operators[connectionKey]
-                    targetConnection = self.targets[connectionKey]
+                    operatorConnection = self.operators[connectionKey][0]
+                    targetConnection = self.targets[connectionKey][0]
                     self.applyBlackMagic(operatorConnection, targetConnection)
                     # remove connections from matching queue
                     self.operators.pop(connectionKey)
+                    self.targets.pop(connectionKey)
+                # close operator connection if timed out (waiting > 15 seconds)
+                timeout = datetime.timedelta(seconds=15) + self.operators[connectionKey]
+                if datetime.datetime.now() > timeout:
+                    self.operators[connectionKey][0].close()
+                    self.operators.pop(connectionKey)
+            # close timed out target connections (waiting > 15 seconds)
+            for connectionKey in list(self.targets):
+                timeout = datetime.timedelta(seconds=15) + self.targets[connectionKey]
+                if datetime.datetime.now() > timeout:
+                    self.targets[connectionKey][0].close()
                     self.targets.pop(connectionKey)
 
     def applyBlackMagic(self, operatorConnection, targetConnection):

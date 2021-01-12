@@ -67,7 +67,7 @@ class Mediator:
                     print("No connection key sent by target {}... Closing connection".format(targetAddress[0]))
                 targetConnection.close()
                 continue
-            if targetKey.decode() != "I solemnly swear that I am up to no good.":
+            if targetKey.decode() != "CHANGE ME!!!":
                 if self.logLevel >= 2:
                     print("Invalid connection key '{}' sent by target {}... Closing connection".format(targetKey, targetAddress[0]))
                 targetConnection.close()
@@ -92,7 +92,7 @@ class Mediator:
                     print("No connection key sent by operator {}... Closing connection".format(operatorAddress[0]))
                 operatorConnection.close()
                 continue
-            if operatorKey.decode() != "I solemnly swear that I am up to no good.":
+            if operatorKey.decode() != "CHANGE ME!!!":
                 if self.logLevel >= 2:
                     print("Invalid connection key '{}' sent by operator {}... Closing connection".format(operatorKey, operatorAddress[0]))
                 operatorConnection.close()

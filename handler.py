@@ -134,7 +134,7 @@ if __name__ == "__main__":
                         help="address of mediator server",
                         default="example.com")
     args = parser.parse_args()
-    if connectionKey:
+    if args.connectionKey:
         handler = Handler(mediatorHost=args.serverAddr, connectionKey=args.connectionKey)
     else:
         handler = Handler(mediatorHost=args.serverAddr)

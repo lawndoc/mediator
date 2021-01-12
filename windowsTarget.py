@@ -86,7 +86,7 @@ if __name__ == "__main__":
     parser.add_argument("-s", "--server", dest="serverAddr", action="store",
                         default="example.com")
     args = parser.parse_args()
-    if connectionKey:
+    if args.connectionKey:
         rShell = WindowsRShell(mediatorHost=args.serverAddr, connectionKey=args.connectionKey)
     else:
         rShell = WindowsRShell(mediatorHost=args.serverAddr)

@@ -26,11 +26,11 @@ or you can build a Docker image with the provided [Dockerfile](Dockerfile) and r
 
 ### Clients
 
-The clients, the handler and targets, can be used within other Python scripts or directly via the command line. In both cases, the clients can accept arguments for the server address and connection key. Usage of those arguments is described below.
+The handler and the reverse shell can be used within other Python scripts or directly via the command line. In both cases, the clients can accept arguments for the server address and connection key. Usage of those arguments is described below.
 
 **Mediator server address**
 
-For *python script* usage, the address of the mediator host is required upon instantiation:
+For *Python script* usage, the address of the mediator host is required upon instantiation:
 
 *Handler class*
 ```python
@@ -66,7 +66,7 @@ When two handlers or two reverse shells connect to the mediator server with the 
 
 It is important to make sure each handler is using a unique connection key to avoid a race condition resulting in the wrong operator being given a shell. The default connection key is "CHANGE ME!!!".
 
-To change the connection key for *python script* usage, the connection key can optionally be supplied upon instantiation:
+To change the connection key for *Python script* usage, the connection key can optionally be supplied upon instantiation:
 
 *Handler class*
 ```python

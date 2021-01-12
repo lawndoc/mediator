@@ -116,13 +116,13 @@ class Mediator:
                     self.operators.pop(connectionKey)
                     self.targets.pop(connectionKey)
                 # close operator connection if timed out (waiting > 15 seconds)
-                timeout = datetime.timedelta(seconds=15) + self.operators[connectionKey]
+                timeout = datetime.timedelta(seconds=15) + self.operators[connectionKey][1]
                 if datetime.datetime.now() > timeout:
                     self.operators[connectionKey][0].close()
                     self.operators.pop(connectionKey)
             # close timed out target connections (waiting > 15 seconds)
             for connectionKey in list(self.targets):
-                timeout = datetime.timedelta(seconds=15) + self.targets[connectionKey]
+                timeout = datetime.timedelta(seconds=15) + self.targets[connectionKey][1]
                 if datetime.datetime.now() > timeout:
                     self.targets[connectionKey][0].close()
                     self.targets.pop(connectionKey)

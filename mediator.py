@@ -68,11 +68,16 @@ class Mediator:
                     print("No connection key sent by target {}... Closing connection".format(targetAddress[0]))
                 targetConnection.close()
                 continue
-            if targetKey.decode()[:16] != "#!ConnectionKey_":
+            try:
+                if targetKey.decode()[:16] != "#!ConnectionKey_":
+                    if self.logLevel >= 2:
+                        print("Invalid connection key '{}' sent by target {}... Closing connection".format(targetKey, targetAddress[0]))
+                    targetConnection.close()
+                    continue
+            except:
                 if self.logLevel >= 2:
-                    print("Invalid connection key '{}' sent by target {}... Closing connection".format(targetKey, targetAddress[0]))
-                targetConnection.close()
-                continue
+                    print("ERROR: unable to read connection key '{}' from target {}...".format(targetKey, targetAddress[0]))
+                    continue
             # don't allow duplicate waiting connection keys
             if targetKey.decode() in self.targets:
                 if self.logLevel >= 1:
@@ -101,10 +106,14 @@ class Mediator:
                     print("No connection key sent by operator {}... Closing connection".format(operatorAddress[0]))
                 operatorConnection.close()
                 continue
-            if operatorKey.decode()[:16] != "#!ConnectionKey_":
-                if self.logLevel >= 2:
-                    print("Invalid connection key '{}' sent by operator {}... Closing connection".format(operatorKey, operatorAddress[0]))
-                operatorConnection.close()
+            try:
+                if operatorKey.decode()[:16] != "#!ConnectionKey_":
+                    if self.logLevel >= 2:
+                        print("Invalid connection key '{}' sent by operator {}... Closing connection".format(operatorKey, operatorAddress[0]))
+                    operatorConnection.close()
+                    continue
+            except:
+                print("ERROR: unable to read connection key '{}' from operator {}...".format(operatorKey, operatorAddress[0]))
                 continue
             # don't allow duplicate waiting connection keys
             if operatorKey.decode() in self.operators:

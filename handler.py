@@ -15,7 +15,7 @@ import threading
 
 
 class Handler:
-    def __init__(self, mediatorHost="", connectionKey="CHANGE ME!!!"):
+    def __init__(self, mediatorHost="", connectionKey="#!ConnectionKey_CHANGE_ME!!!"):
         self.connectionKey = connectionKey
         self.shell = socket()
         self.shell.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)

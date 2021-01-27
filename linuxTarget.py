@@ -15,7 +15,7 @@ import threading
 
 
 class LinuxRShell:
-    def __init__(self, mediatorHost="", connectionKey="CHANGE ME!!!"):
+    def __init__(self, mediatorHost="", connectionKey="#!ConnectionKey_CHANGE_ME!!!"):
         self.connectionKey = connectionKey
         self.handler = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         if not mediatorHost:

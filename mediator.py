@@ -187,5 +187,5 @@ class Mediator:
 
 
 if __name__ == "__main__":
-    server = Mediator(logLevel=2)
+    server = Mediator(logLevel=1)
     server.handleConnections()

@@ -64,7 +64,10 @@ class Handler:
                     else:
                         self.lastCommand = ""
                     continue
-                print(response.decode(), end="", flush=True)
+                try:
+                    print(response.decode(), end="", flush=True)
+                except:
+                    print(".", end="", flush=True)
 
     def getRSA(self):
         # read RSA key if it exists, otherwise create a new one

@@ -62,7 +62,11 @@ class Mediator:
             # get connection key from reverse shell for matching to operator
             ready = select.select([targetConnection], [], [], 10)
             if ready[0]:
-                targetKey = targetConnection.recv(1024)
+                try:
+                    targetKey = targetConnection.recv(1024)
+                except ConnectionResetError:
+                    targetConnection.close()
+                    continue
             if not targetKey:
                 if self.logLevel >= 2:
                     print("No connection key sent by target {}... Closing connection".format(targetAddress[0]))
@@ -100,7 +104,11 @@ class Mediator:
             # get connection key from operator for matching to reverse shell
             ready = select.select([operatorConnection], [], [], 10)
             if ready[0]:
-                operatorKey = operatorConnection.recv(1024)
+                try:
+                    operatorKey = operatorConnection.recv(1024)
+                except ConnectionResetError:
+                    operatorConnection.close()
+                    continue
             if not operatorKey:
                 if self.logLevel >= 2:
                     print("No connection key sent by operator {}... Closing connection".format(operatorAddress[0]))

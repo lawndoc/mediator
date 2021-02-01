@@ -2,7 +2,7 @@
 
 Mediator is an end-to-end encrypted reverse shell in which the operator and the shell connect to a "mediator" server that bridges the connections. This removes the need for the operator/handler to set up port forwarding in order to listen for the connection. It also allows for easy integration into other pentesting and incident response tools.
 
-<img style="align: right; margin-left: 1.5em" src="resources/mediator.png" alt="mediator logo" width="175"/>
+<img style="align: center;" src="resources/mediator.png" alt="mediator logo" width="500"/>
 
 ## Architecture:
 

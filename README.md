@@ -103,6 +103,6 @@ $ python3 handler.py -s example.com -c '#!ConnectionKey_secret_key'
 
 ## Tips and Reminders:
 
-- REMINDER: handlers and reverse shells will not be bridged together unless they connect to the mediator server using the same connection key within 15 seconds of each other.
+- REMINDER: handlers and reverse shells will not be bridged together unless they connect to the mediator server using the same connection key within 30 seconds of each other.
 - TIP: You can easily create an exe for windowsTarget.py with pyinstaller using the `--onefile` flag
 

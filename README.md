@@ -18,7 +18,7 @@ Reverse shells and handlers connect to the mediator server with a connection key
 
 ### Server
 
-The client scripts can be run on Windows or Linux, but you'll need to stand up the server ([mediator.py](mediator.py)) on a Linux host. You can either run the server script with
+The client scripts can be run on Windows or Linux, but you'll need to stand up the server ([mediator.py](mediator.py)) on a Linux host. The server is pure Python, so no dependencies need to be installed. You can either run the server script with
 
 ```bash
 $ python3 mediator.py
@@ -27,6 +27,8 @@ $ python3 mediator.py
 or you can build a Docker image with the provided [Dockerfile](Dockerfile) and run it in a container (make sure to publish ports 80 and 443).
 
 ### Clients
+
+You will need to install the dependency pycryptodome (found in requirements.txt) for the clients to work.
 
 The handler and the reverse shell can be used within other Python scripts or directly via the command line. In both cases, the clients can accept arguments for the server address and connection key. Usage of those arguments is described below.
 

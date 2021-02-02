@@ -5,6 +5,7 @@ Author: C.J. May
 Description: Bridge two connections to remotely connect an operator to a reverse shell without port forwarding
 """
 
+import argparse
 import datetime
 import select
 from socket import *
@@ -204,5 +205,18 @@ class Mediator:
 
 
 if __name__ == "__main__":
-    server = Mediator(logLevel=2)
+    parser = argparse.ArgumentParser(description="Reverse shell handler client to be used with a mediator server.")
+    parser.add_argument("-l", "--log-level",
+                        dest="logLevel",
+                        action="store",
+                        help="detail of logs created by the server (range: 0-2)",
+                        default="1")
+    args = parser.parse_args()
+    try:
+        if int(args.logLevel) not in range(0,3):
+            raise ValueError
+    except ValueError:
+        print("Error: invalid log level supplied (valid range: 0-2)")
+        exit(1)
+    server = Mediator(logLevel=args.logLevel)
     server.handleConnections()

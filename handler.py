@@ -33,8 +33,8 @@ class Handler:
         commandClasses = inspect.getmembers(plugins, inspect.isclass)
         commandClasses.pop(0)
         externalCommands = dict()
-        for className, commandObject in commandClasses:
-                externalCommands[str(commandObject)] = commandObject.handler
+        for className, commandClass in commandClasses:
+                externalCommands[commandClass.name()] = commandClass.handler
         return externalCommands
 
     def tryPlugin(self, commandLine):

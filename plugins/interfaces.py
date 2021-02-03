@@ -6,22 +6,26 @@ Description: Using the provided interfaces, you can perform tasks on the target 
 from abc import ABC, abstractmethod
 
 class CommandInterface(ABC):
+    @staticmethod
     @abstractmethod
-    def handler(self, argv):
+    def handler(argv):
         """Code to be executed by the handler when the command is called"""
         return
 
+    @staticmethod
     @abstractmethod
-    def windowsTarget(self, argv):
+    def windowsTarget(argv):
         """Code to be executed by the windows target when the command is called"""
         return
 
+    @staticmethod
     @abstractmethod
-    def linuxTarget(self, argv):
+    def linuxTarget(argv):
         """Code to be executed by the linux target when the command is called"""
         return
 
+    @staticmethod
     @abstractmethod
-    def __repr__(self):
+    def name():
         """Return the name of the command as it would appear in the shell (ex. return "nmap")"""
         return

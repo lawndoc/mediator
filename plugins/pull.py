@@ -1,14 +1,16 @@
 from interfaces import CommandInterface
 
 class PullCommand(CommandInterface):
-    def handler(self, argv):
-        pass
+    def handler(argv):
+        print("Ran handler code")
+        return
 
-    def windowsTarget(self, argv):
-        pass
+    def windowsTarget(argv):
+        print("Ran windows code")
+        return
 
-    def linuxTarget(self, argv):
-        pass
+    def linuxTarget(argv):
+        print("Ran linux code")
 
-    def __repr__(self):
+    def name():
         return "pull"

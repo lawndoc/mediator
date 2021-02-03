@@ -3,7 +3,7 @@ File: interfaces.py
 Author: C.J. May
 Description: Using the provided interfaces, you can perform tasks on the target host outside of the capability of the shell you are connected to. This file contains an interface for adding custom commands to the shell.
 """
-from abc import ABC
+from abc import ABC, abstractmethod
 
 class CommandInterface(ABC):
     @abstractmethod

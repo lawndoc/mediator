@@ -9,6 +9,7 @@ import argparse
 from Crypto.Cipher import AES
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
+import inspect
 import plugins
 from socket import *
 import sys
@@ -126,7 +127,7 @@ class Handler:
             aesKey = cipher.decrypt(message)
             print("Key exchange successful...\n")
         except ValueError:
-            print("ERROR: Duplicate operator waiting on server -- connection closed")
+            print("ERROR: Duplicate operator waiting on server or invalid response received -- connection closed")
             print("Please change connection key or try again soon")
             exit(1)
         except ConnectionResetError:

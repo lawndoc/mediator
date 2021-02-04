@@ -2,13 +2,7 @@
     <img src="resources/mediator.png" alt="mediator logo"/>
 </p>
 
-Mediator is an end-to-end encrypted reverse shell in which the operator and the shell connect to a "mediator" server that bridges the connections. This removes the need for the operator/handler to set up port forwarding in order to listen for the connection. It also allows for easy integration into other pentesting and incident response tools.
-
-Mediator also allows you to create plugins to expand the functionality of the reverse shell. Plugins allow you to add extra commands that can execute code on the operator's host, the target host, or both! Mediator includes the following plugins by default:
-
-***push***: push a file from the operator's host to the target host
-
-***pull***: pull a file from the target host to the operator's host
+Mediator is an end-to-end encrypted reverse shell in which the operator and the shell connect to a "mediator" server that bridges the connections. This removes the need for the operator/handler to set up port forwarding in order to listen for the connection. It also allows for easy integration into other pentesting and incident response tools. Mediator also allows you to create plugins to expand the functionality of the reverse shell.
 
 ## Architecture:
 
@@ -19,6 +13,14 @@ Inspired by end-to-end encrypted chat applications, this reverse shell takes a u
 3. A server that bridges the two connections
 
 Reverse shells and handlers connect to the mediator server with a connection key. The server listens on port 80 for handler connections and port 443 for reverse shell connections. When clients connect to the mediator, the server queues the clients according to their respective type and connection key. When both a reverse shell and an operator connect to the server with the same key, the server will bridge the two connections. From there, a key exchange is done between the two clients, and all communication between the reverse shell and operator is encrypted end-to-end. This ensures the server cannot snoop on the streams it is piping.
+
+## Plugins
+
+Plugins allow you to add extra commands that can execute code on the operator's host, the target host, or both! Mediator includes the following plugins by default:
+
+***push***: push a file from the operator's host to the target host
+
+***pull***: pull a file from the target host to the operator's host
 
 ## Instructions:
 

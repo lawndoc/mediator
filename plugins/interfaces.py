@@ -5,22 +5,22 @@ Description: Using the provided interfaces, you can perform tasks on the target 
 """
 from abc import ABC, abstractmethod
 
-class CommandInterface(ABC):
+class CommandPlugin(ABC):
     @staticmethod
     @abstractmethod
-    def handler(argv):
+    def handler(argv, socket, cipherKey):
         """Code to be executed by the handler when the command is called"""
         return
 
     @staticmethod
     @abstractmethod
-    def windowsTarget(argv):
+    def windowsTarget(argv, socket, cipherKey):
         """Code to be executed by the windows target when the command is called"""
         return
 
     @staticmethod
     @abstractmethod
-    def linuxTarget(argv):
+    def linuxTarget(argv, socket, cipherKey):
         """Code to be executed by the linux target when the command is called"""
         return
 

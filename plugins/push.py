@@ -1,6 +1,6 @@
-from interfaces import CommandInterface
+from interfaces import CommandPlugin
 
-class PushCommand(CommandInterface):
+class PushCommand(CommandPlugin):
     def handler(argv):
         print("Ran handler code")
         return

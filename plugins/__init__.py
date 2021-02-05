@@ -8,7 +8,7 @@ plugins_folder = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile(
 if plugins_folder not in sys.path:
     sys.path.insert(0, plugins_folder)
 
-from interfaces import CommandInterface
+from interfaces import CommandPlugin
 
 # iterate through the modules in the plugins dir
 for (_, module_name, _) in iter_modules([plugins_folder]):
@@ -18,7 +18,7 @@ for (_, module_name, _) in iter_modules([plugins_folder]):
     for attribute_name in dir(module):
         attribute = getattr(module, attribute_name)
         if inspect.isclass(attribute):
-            if issubclass(attribute, CommandInterface):
+            if issubclass(attribute, CommandPlugin):
                 # Add the class to this package's variables
                 globals()[attribute_name] = attribute
 

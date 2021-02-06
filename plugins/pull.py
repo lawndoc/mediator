@@ -127,7 +127,7 @@ class PullCommand(CommandPlugin):
         # wait for ready signal
         nonce = socket.recv(16)
         tag = socket.recv(16)
-        ciphertext = socket.recv(4096)
+        ciphertext = socket.recv(2048)
         cipher = AES.new(cipherKey, AES.MODE_EAX, nonce=nonce)
         signal = cipher.decrypt(ciphertext)
         if signal.decode() != "READY":
@@ -136,7 +136,7 @@ class PullCommand(CommandPlugin):
         # send file
         with open(targetPath, "rb") as pullFile:
             while True:
-                bytesRead = pullFile.read(4096)
+                bytesRead = pullFile.read(2048)
                 if not bytesRead:
                     # done sending file
                     break

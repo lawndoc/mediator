@@ -91,7 +91,7 @@ class PullCommand(CommandPlugin):
                 # done receiving file
                 progress.close()
                 break
-        print("Done.\n")
+        print("Done.")
         # file received
         pulledFile.close()
         return

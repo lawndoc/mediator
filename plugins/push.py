@@ -70,7 +70,7 @@ class PushCommand(CommandPlugin):
                     # done sending file
                     progress.close()
                     break
-        print("Done.\n")
+        print("Done.")
         # file sent
         return
 

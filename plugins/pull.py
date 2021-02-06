@@ -47,13 +47,6 @@ class PullCommand(CommandPlugin):
             errorMessage = message.decode()
             print("Error message from target: '{errorMessage}'. Please check args and try again")
             return
-        # send ready-to-receive signal
-        cipher = AES.new(cipherKey, AES.MODE_EAX)
-        nonce = cipher.nonce
-        ciphertext, tag = cipher.encrypt_and_digest(b"READY")
-        socket.sendall(nonce)
-        socket.sendall(tag)
-        socket.sendall(ciphertext)
         # make directories that don't exist yet and open file for receiving
         if nameFromTarget:
             try:
@@ -63,17 +56,33 @@ class PullCommand(CommandPlugin):
             pulledFile = open(operatorPath + "/" + shortname, "wb")
         else:
             try:
-                os.makedirs(operatorPath[:operatorPath.rindex(shortname)])
+                if "/" in operatorPath or "\\" in operatorPath:
+                    os.makedirs(operatorPath[:operatorPath.rindex(shortname)])
             except FileExistsError:
                 pass
             pulledFile = open(operatorPath, "wb")
+        # send ready-to-receive signal
+        cipher = AES.new(cipherKey, AES.MODE_EAX)
+        nonce = cipher.nonce
+        ciphertext, tag = cipher.encrypt_and_digest(b"READY")
+        socket.sendall(nonce)
+        socket.sendall(tag)
+        socket.sendall(ciphertext)
         # start receiving file
         progress = tqdm.tqdm(range(filesize), "Receiving file", unit="B", unit_scale=True, unit_divisor=1024)
         while True:
-            # receive file chunk (up to 4KB at a time)
+            # receive file chunk (up to 2KB at a time)
+            buffersize = min(2048, filesize-progress.n)
             nonce = socket.recv(16)
             tag = socket.recv(16)
-            ciphertext = socket.recv(min(4096, filesize-progress.n))
+            ciphertext = socket.recv(buffersize)
+            # make sure we received full ciphertext
+            remaining = buffersize - len(ciphertext)
+            while remaining:
+                moreCiphertext = socket.recv(remaining)
+                ciphertext += moreCiphertext
+                remaining = buffersize - len(ciphertext)
+            # decrypt chunk and save to file
             cipher = AES.new(cipherKey, AES.MODE_EAX, nonce=nonce)
             bytesRead = cipher.decrypt(ciphertext)
             pulledFile.write(bytesRead)

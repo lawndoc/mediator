@@ -135,11 +135,11 @@ class Handler:
         except ValueError:
             print("ERROR: Duplicate operator waiting on server or invalid response received -- connection closed")
             print("Please change connection key or try again soon")
-            exit(1)
+            sys.exit(1)
         except ConnectionResetError:
             print("ERROR: Connection timed out waiting for reverse shell")
             print("Please check connection key and try again")
-            exit(1)
+            sys.exit(1)
         return aesKey
 
     def connect(self, mediatorHost):

@@ -1,5 +1,5 @@
 from Crypto.Cipher import AES
-from interfaces import CommandPlugin
+from .interfaces import CommandPlugin
 import os
 import pathlib
 import tqdm

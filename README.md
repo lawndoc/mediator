@@ -2,7 +2,9 @@
     <img src="resources/mediator.png" alt="mediator logo"/>
 </p>
 
-Mediator is an end-to-end encrypted reverse shell in which the operator and the shell connect to a "mediator" server that bridges the connections. This removes the need for the operator/handler to set up port forwarding in order to listen for the connection. It also allows for easy integration into other pentesting and incident response tools. Mediator also allows you to create plugins to expand the functionality of the reverse shell.
+Mediator is an end-to-end encrypted reverse shell in which the operator and the shell connect to a "mediator" server that bridges the connections. This removes the need for the operator/handler to set up port forwarding in order to listen for the connection. Mediator also allows you to create plugins to expand the functionality of the reverse shell.
+
+You can run Mediator's scripts as standalone executables or you can import them for integration into other pentesting and incident response tools.
 
 ## Architecture:
 

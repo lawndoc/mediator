@@ -11,11 +11,15 @@ Mediator includes some plugins by default. Below is information on the included 
 ### *push*
 
 Description: Push a file from the operator's host to the target host.
+
 Usage: `push <operator_path> <target_path>`
+
 Example: `push recon_script.sh .`
 
 ### *pull*
 
 Description: Pull a file from the target host to the operator's host.
+
 Usage: `pull <target_path> <operator_path>`
+
 Example: `pull forensics.zip forensics/host1.zip`

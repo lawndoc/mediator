@@ -24,7 +24,7 @@ Example: `pull forensics.zip forensics/host1.zip`
 
 ## Adding new plugins:
 
-Plugins are contained in a single Python class. Every plugin should follow the CommandPlugin class interface. An implemented plugin requires you to define methods for what will be run on the handler, windowsTarget, and linuxTarget systems when the plugin is called. You also need to have a method that declares the name of the plugin as it would appear on the command line when you execute it.
+Plugins are contained in a single Python class. Every plugin should follow the CommandPlugin class interface. You will need to define methods for what will be run on the handler, windowsTarget, and linuxTarget systems when the plugin is called. You also need to have a method that declares the name of the plugin as it would appear on the command line when you execute it.
 
 Once you have the file containing your plugin class in the plugins directory, you need to add it to the plugin module's \_\_init\_\_.py file so it will be found when importing plugins. You just need to add an import statement like the one below:
 

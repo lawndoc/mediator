@@ -12,7 +12,10 @@ from Crypto.Random import get_random_bytes
 import inspect
 import os
 import pathlib
-import plugins
+try:
+    from . import plugins
+except ImportError:
+    import plugins
 import socket
 import subprocess
 from sys import exit

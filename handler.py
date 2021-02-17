@@ -10,7 +10,10 @@ from Crypto.Cipher import AES
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 import inspect
-import plugins
+try:
+    from . import plugins
+except ImportError:
+    import plugins
 import select
 from socket import *
 import sys

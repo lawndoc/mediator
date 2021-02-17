@@ -1,6 +1,6 @@
 # Mediator Plugins
 
-Mediator's extensible reverse shell gives you more control than just the OS's shell that you're connected to by allowing you to use plugins. Plugins can be called like any other command once you are connected to a reverse shell.
+Mediator's extensible reverse shell gives you more control than just the OS's shell that you're connected to. This is possible through the use of plugins, which can be called like any other command once you are connected to a reverse shell.
 
 Plugins are contained in a single Python class. Every plugin should follow the CommandPlugin class interface. An implemented plugin requires you to define methods for what will be run on the handler, windowsTarget, and linuxTarget systems when the plugin is called. You also need to have a method that declares the name of the plugin as it would appear on the command line when you execute it. Please refer to the included plugins for reference when creating your own plugins.
 

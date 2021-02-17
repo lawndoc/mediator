@@ -147,7 +147,6 @@ class PushCommand(CommandPlugin):
             if progress >= filesize:
                 # done receiving file
                 break
-        print("Done.\n")
         # file received
         pulledFile.close()
         return

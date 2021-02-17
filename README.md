@@ -6,13 +6,13 @@ Mediator is an end-to-end encrypted reverse shell in which the operator and the 
 
 ## Architecture:
 
-Inspired by end-to-end encrypted chat applications, this reverse shell takes a unique approach to the client/server model of a reverse shell. This reverse shell uses:
+Inspired by end-to-end encrypted chat applications, Mediator takes a unique approach to the client/server model of a reverse shell. Mediator uses:
 
 1. A client reverse shell
 2. A client handler/operator
 3. A server that bridges the two connections
 
-Reverse shells and handlers connect to the mediator server with a connection key. The server listens on port 80 for handler connections and port 443 for reverse shell connections. When clients connect to the mediator, the server queues the clients according to their respective type and connection key. When both a reverse shell and an operator connect to the server with the same key, the server will bridge the two connections. From there, a key exchange is done between the two clients, and all communication between the reverse shell and operator is encrypted end-to-end. This ensures the server cannot snoop on the streams it is piping.
+Reverse shells and handlers connect to the Mediator server with a connection key. The server listens on port 80 for handler connections and port 443 for reverse shell connections. When clients connect to the mediator, the server queues the clients according to their respective type and connection key. When both a reverse shell and an operator connect to the server with the same key, the server will bridge the two connections. From there, a key exchange is done between the two clients, and all communication between the reverse shell and operator is encrypted end-to-end. This ensures the server cannot snoop on the streams it is piping.
 
 ## Plugins
 

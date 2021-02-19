@@ -79,7 +79,7 @@ class Mediator:
                         print("Invalid connection key '{}' sent by target {}... Closing connection".format(targetKey, targetAddress[0]))
                     targetConnection.close()
                     continue
-            except:
+            except Exception:
                 if self.logLevel >= 2:
                     print("ERROR: unable to read connection key '{}' from target {}...".format(targetKey, targetAddress[0]))
                     continue
@@ -121,7 +121,7 @@ class Mediator:
                         print("Invalid connection key '{}' sent by operator {}... Closing connection".format(operatorKey, operatorAddress[0]))
                     operatorConnection.close()
                     continue
-            except:
+            except Exception:
                 print("ERROR: unable to read connection key '{}' from operator {}...".format(operatorKey, operatorAddress[0]))
                 continue
             # don't allow duplicate waiting connection keys

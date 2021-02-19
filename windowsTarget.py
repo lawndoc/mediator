@@ -80,9 +80,8 @@ class WindowsRShell:
                             p = pathlib.Path(command[3:])
                         try:
                             os.chdir(p.resolve())
-                        except Exception as e:
+                        except Exception:
                             # not a directory -- let shell output error message
-                            raise e
                             pass
 
     def sendResponses(self, cmdexe):
@@ -140,6 +139,8 @@ if __name__ == "__main__":
     parser.add_argument("-s", "--server", dest="serverAddr", action="store",
                         default="example.com")
     args = parser.parse_args()
+    if args.serverAddr == "example.com":
+        exit(1)
     if args.connectionKey:
         rShell = WindowsRShell(mediatorHost=args.serverAddr, connectionKey=args.connectionKey)
     else:

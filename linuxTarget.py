@@ -81,9 +81,8 @@ class LinuxRShell:
                         try:
                             print(f"Changing directory to {p.resolve()}")
                             os.chdir(p.resolve())
-                        except Exception as e:
+                        except Exception:
                             # not a directory -- let shell output error message
-                            raise e
                             pass
 
     def sendResponses(self, bash):
@@ -139,11 +138,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="")
     parser.add_argument("-c", "--connection-key", dest="connectionKey", action="store")
     parser.add_argument("-s", "--server", dest="serverAddr", action="store",
-                            default="example.com")
+                        default="example.com")
     args = parser.parse_args()
+    if args.serverAddr == "example.com":
+        exit(1)
     if args.connectionKey:
-        rShell = LinuxRShell(mediatorhost=args.serverAddr, connectionKey=args.connectionKey)
+        rShell = LinuxRShell(mediatorHost=args.serverAddr, connectionKey=args.connectionKey)
     else:
-        rShell = LinuxRShell(mediatorhost=args.serverAddr)
+        rShell = LinuxRShell(mediatorHost=args.serverAddr)
     rShell.run()
 

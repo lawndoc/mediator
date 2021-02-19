@@ -8,7 +8,7 @@ Description: Bridge two connections to remotely connect an operator to a reverse
 import argparse
 import datetime
 import select
-from socket import *
+from socket import socket, AF_INET, SOCK_STREAM, IPPROTO_TCP, TCP_NODELAY
 import subprocess
 import threading
 

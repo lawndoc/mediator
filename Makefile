@@ -19,13 +19,13 @@ all: handler windowsTarget
 handler:
 	@echo "Creating standalone executable for handler..."
 	@cd pyinstaller
-	@pyinstaller handler.spec
+	@pyinstaller --distpath . --log-level CRITICAL handler.spec
 
 windowsTarget:
 	ifeq ($(TARGET),WINDOWS)
 		@echo "Creating standalone executable for windowsTarget..."
 		@cd pyinstaller
-		@pyinstaller windowsTarget.spec
+		@pyinstaller --distpath . --log-level CRITICAL windowsTarget.spec
 	else
 		@echo "WARNING: Pyinstaller must be run on a Windows host to create a standalone executable for windowsTarget.py"
 	endif
@@ -37,5 +37,5 @@ windowsTarget:
 	else
 		@echo "Creating standalone executable for linuxTarget..."
 		@cd pyinstaller
-		@pyinstaller linuxTarget.spec
+		@pyinstaller --distpath . --log-level CRITICAL linuxTarget.spec
 	endif

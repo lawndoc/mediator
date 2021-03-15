@@ -7,10 +7,10 @@ else
     endif
     ifeq ($(UNAME_S),Darwin)
         TARGET := OSX
+    else
+        @echo "ERROR: Could not detect OS version -- not in [Windows, Linux, Darwin]"
+        @exit 1
     endif
-	else
-		@echo "ERROR: Could not detect OS version -- not in [Windows, Linux, Darwin]"
-		@exit 1
 endif
 
 all: handler windowsTarget

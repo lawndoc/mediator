@@ -3,3 +3,7 @@ handler.pem
 .idea/
 build/
 dist/
+Handler
+Handler.exe
+WindowsClient.exe
+LinuxClient

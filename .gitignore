@@ -3,6 +3,3 @@ handler.pem
 .idea/
 build/
 dist/
-windowsTarget.spec
-linuxTarget.spec
-handler.spec

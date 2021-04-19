@@ -34,7 +34,13 @@ or you can build a Docker image with the provided [Dockerfile](Dockerfile) and r
 
 ### Clients
 
-You will need to install the dependency pycryptodome (found in [requirements.txt](requirements.txt)) for the clients to work.
+You will need to install the dependencies found in [requirements.txt](requirements.txt)) for the clients to work. You can do this with the following command:
+
+```bash
+$ pip3 install -r requirements.txt
+```
+
+See *Tips and Reminders* at the bottom for help on distributing the clients without worrying about dependencies.
 
 The handler and the reverse shell can be used within other Python scripts or directly via the command line. In both cases, the clients can accept arguments for the server address and connection key. Usage of those arguments is described below.
 

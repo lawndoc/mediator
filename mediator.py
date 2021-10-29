@@ -6,7 +6,7 @@ Description: Bridge two connections to remotely connect an operator to a reverse
 """
 
 import argparse
-import datetime
+from datetime import datetime, timedelta
 import select
 from socket import socket, AF_INET, SOCK_STREAM, IPPROTO_TCP, TCP_NODELAY
 import subprocess
@@ -91,7 +91,7 @@ class Mediator:
                 continue
             # echo back targetKey and add target to connections queue
             targetConnection.send(targetKey)
-            self.targets[targetKey.decode()] = (targetConnection, datetime.datetime.now())
+            self.targets[targetKey.decode()] = (targetConnection, datetime.now())
             if self.logLevel >= 1:
                 print("Reverse shell '{}' connected from {}...".format(targetKey.decode(), targetAddress[0]))
 
@@ -133,7 +133,7 @@ class Mediator:
                 continue
             # echo back operatorKey and add operator to connections queue
             operatorConnection.send(operatorKey)
-            self.operators[operatorKey.decode()] = (operatorConnection, datetime.datetime.now())
+            self.operators[operatorKey.decode()] = (operatorConnection, datetime.now())
             if self.logLevel >= 1:
                 print("Operator '{}' connected from {}...".format(operatorKey.decode(), operatorAddress[0]))
 
@@ -151,16 +151,16 @@ class Mediator:
                     self.targets.pop(connectionKey)
                     continue
                 # close operator connection if timed out (waiting > 15 seconds)
-                timeout = datetime.timedelta(seconds=30) + self.operators[connectionKey][1]
-                if datetime.datetime.now() > timeout:
+                timeout = timedelta(seconds=30) + self.operators[connectionKey][1]
+                if datetime.now() > timeout:
                     if self.logLevel >= 2:
                         print("Operator '{}' from {} timed out... Closing connection".format(connectionKey, self.operators[connectionKey][0].getpeername()[0]))
                     self.operators[connectionKey][0].close()
                     self.operators.pop(connectionKey)
             # close timed out target connections (waiting > 15 seconds)
             for connectionKey in list(self.targets):
-                timeout = datetime.timedelta(seconds=30) + self.targets[connectionKey][1]
-                if datetime.datetime.now() > timeout:
+                timeout = timedelta(seconds=30) + self.targets[connectionKey][1]
+                if datetime.now() > timeout:
                     if self.logLevel >= 2:
                         print("Target '{}' from {} timed out... Closing connection".format(connectionKey, self.targets[connectionKey][0].getpeername()[0]))
                     self.targets[connectionKey][0].close()

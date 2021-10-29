@@ -58,7 +58,7 @@ class Mediator:
             # wait for reverse shell to connect 
             targetConnection, targetAddress = self.targetServer.accept()
             if self.logLevel >= 2:
-                print(f"{datetime.utcnow()} -- Target connection initiated from {targetAddress[0]}")
+                print(f"{datetime.utcnow()} -- DEBUG Target connection initiated from {targetAddress[0]}")
             targetKey = None
             # get connection key from reverse shell for matching to operator
             ready = select.select([targetConnection], [], [], 10)
@@ -70,13 +70,13 @@ class Mediator:
                     continue
             if not targetKey:
                 if self.logLevel >= 2:
-                    print(f"{datetime.utcnow()}Z -- No connection key sent by target {targetAddress[0]}... Closing connection")
+                    print(f"{datetime.utcnow()}Z -- DEBUG: No connection key sent by target {targetAddress[0]}... Closing connection")
                 targetConnection.close()
                 continue
             try:
                 if targetKey.decode()[:16] != "#!ConnectionKey_":
                     if self.logLevel >= 2:
-                        print(f"{datetime.utcnow()}Z -- Invalid connection key '{targetKey}' sent by target {targetAddress[0]}... Closing connection")
+                        print(f"{datetime.utcnow()}Z -- DEBUG: Invalid connection key '{targetKey}' sent by target {targetAddress[0]}... Closing connection")
                     targetConnection.close()
                     continue
             except Exception:
@@ -87,21 +87,21 @@ class Mediator:
             # don't allow duplicate waiting connection keys
             if targetKey.decode() in self.targets:
                 if self.logLevel >= 1:
-                    print(f"{datetime.utcnow()}Z -- Duplicate target key... Closing connection")
+                    print(f"{datetime.utcnow()}Z -- INFO: Duplicate target key... Closing connection")
                 targetConnection.close()
                 continue
             # echo back targetKey and add target to connections queue
             targetConnection.send(targetKey)
             self.targets[targetKey.decode()] = (targetConnection, datetime.utcnow())
             if self.logLevel >= 1:
-                print(f"{datetime.utcnow()}Z -- Reverse shell '{targetKey.decode()}' connected from {targetAddress[0]}...")
+                print(f"{datetime.utcnow()}Z -- INFO: Reverse shell '{targetKey.decode()[16:]}' connected from {targetAddress[0]}...")
 
     def handleOperators(self):
         while True:
             # wait for operator to connect
             operatorConnection, operatorAddress = self.operatorServer.accept()
             if self.logLevel >= 2:
-                print(f"{datetime.utcnow()}Z -- Operator connection initiated from {operatorAddress[0]}")
+                print(f"{datetime.utcnow()}Z -- DEBUG: Operator connection initiated from {operatorAddress[0]}")
             operatorKey = None
             # get connection key from operator for matching to reverse shell
             ready = select.select([operatorConnection], [], [], 10)
@@ -113,13 +113,13 @@ class Mediator:
                     continue
             if not operatorKey:
                 if self.logLevel >= 2:
-                    print(f"{datetime.utcnow()}Z -- No connection key sent by operator {operatorAddress[0]}... Closing connection")
+                    print(f"{datetime.utcnow()}Z -- DEBUG: No connection key sent by operator {operatorAddress[0]}... Closing connection")
                 operatorConnection.close()
                 continue
             try:
                 if operatorKey.decode()[:16] != "#!ConnectionKey_":
                     if self.logLevel >= 2:
-                        print(f"{datetime.utcnow()}Z -- Invalid connection key '{operatorKey}' sent by operator {operatorAddress[0]}... Closing connection")
+                        print(f"{datetime.utcnow()}Z -- DEBUG: Invalid connection key '{operatorKey}' sent by operator {operatorAddress[0]}... Closing connection")
                     operatorConnection.close()
                     continue
             except Exception:
@@ -130,7 +130,7 @@ class Mediator:
             # don't allow duplicate waiting connection keys
             if operatorKey.decode() in self.operators:
                 if self.logLevel >= 1:
-                    print(f"{datetime.utcnow()}Z -- Duplicate operator key... Sending message and closing connection")
+                    print(f"{datetime.utcnow()}Z -- INFO: Duplicate operator key... Sending message and closing connection")
                 operatorConnection.send("DUPLICATE".encode())
                 operatorConnection.close()
                 continue
@@ -138,7 +138,7 @@ class Mediator:
             operatorConnection.send(operatorKey)
             self.operators[operatorKey.decode()] = (operatorConnection, datetime.utcnow())
             if self.logLevel >= 1:
-                print(f"{datetime.utcnow()}Z -- Operator '{operatorKey}' connected from {operatorAddress[0]}...")
+                print(f"{datetime.utcnow()}Z -- INFO: Operator '{operatorKey[16:]}' connected from {operatorAddress[0]}...")
 
     def bridgeConnections(self):
         while True:
@@ -156,16 +156,16 @@ class Mediator:
                 # close operator connection if timed out (waiting > 15 seconds)
                 timeout = timedelta(seconds=30) + self.operators[connectionKey][1]
                 if datetime.utcnow() > timeout:
-                    if self.logLevel >= 2:
-                        print(f"{datetime.utcnow()}Z -- Operator '{connectionKey}' from {self.operators[connectionKey][0].getpeername()[0]} timed out... Closing connection")
+                    if self.logLevel >= 1:
+                        print(f"{datetime.utcnow()}Z -- INFO: Operator '{connectionKey[16:]}' from {self.operators[connectionKey][0].getpeername()[0]} timed out... Closing connection")
                     self.operators[connectionKey][0].close()
                     self.operators.pop(connectionKey)
             # close timed out target connections (waiting > 15 seconds)
             for connectionKey in list(self.targets):
                 timeout = timedelta(seconds=30) + self.targets[connectionKey][1]
                 if datetime.utcnow() > timeout:
-                    if self.logLevel >= 2:
-                        print(f"{datetime.utcnow()}Z -- Target '{connectionKey}' from {self.targets[connectionKey][0].getpeername()[0]} timed out... Closing connection")
+                    if self.logLevel >= 1:
+                        print(f"{datetime.utcnow()}Z -- INFO: Target '{connectionKey[16:]}' from {self.targets[connectionKey][0].getpeername()[0]} timed out... Closing connection")
                     self.targets[connectionKey][0].close()
                     self.targets.pop(connectionKey)
 
@@ -184,7 +184,7 @@ class Mediator:
                                             stdout=toTarget,
                                             stderr=toTarget)
         if self.logLevel >= 1:
-            print(f"{datetime.utcnow()}Z -- Operator '{connectionKey}' at {operatorConnection.getpeername()[0]} bridged to target at {targetConnection.getpeername()[0]}... Connection ID {self.connCount}")
+            print(f"{datetime.utcnow()}Z -- INFO: Connection '{connectionKey[16:]}' bridged for operator {operatorConnection.getpeername()[0]} and target {targetConnection.getpeername()[0]}... Connection ID {self.connCount}")
         # create thread to gracefully close connection when done
         terminatorThread = threading.Thread(target=self.waitAndTerminate,
                                             args=[targetToOperator,
@@ -204,7 +204,7 @@ class Mediator:
         operatorSock.close()
         # connections terminated
         if self.logLevel >= 1:
-            print(f"{datetime.utcnow()}Z -- Connection ID {connID} terminated.")
+            print(f"{datetime.utcnow()}Z -- INFO: Connection ID {connID} terminated.")
 
 
 if __name__ == "__main__":
@@ -219,7 +219,7 @@ if __name__ == "__main__":
         if int(args.logLevel) not in range(0,3):
             raise ValueError
     except ValueError:
-        print(f"{datetime.utcnow()}Z -- Error: invalid log level supplied (valid range: 0-2)")
+        print(f"{datetime.utcnow()}Z -- ERROR: invalid log level supplied (valid range: 0-2)")
         exit(1)
     server = Mediator(logLevel=args.logLevel)
     server.handleConnections()

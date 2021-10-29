@@ -15,7 +15,7 @@ import threading
 
 class Mediator:
     def __init__(self, logLevel=1):
-        # set log level\
+        # set log level
         self.logLevel = logLevel
         # create reverse shell socket and bind it to a port
         self.targetServer = socket(AF_INET, SOCK_STREAM)
@@ -221,5 +221,5 @@ if __name__ == "__main__":
     except ValueError:
         print(f"{datetime.utcnow()}Z -- ERROR: invalid log level supplied (valid range: 0-2)")
         exit(1)
-    server = Mediator(logLevel=args.logLevel)
+    server = Mediator(logLevel=int(args.logLevel))
     server.handleConnections()

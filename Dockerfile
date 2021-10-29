@@ -10,5 +10,5 @@ EXPOSE 443/tcp
 COPY mediator.py .
 
 # run server when container starts
-CMD [ "python3", "./mediator.py" ]
+CMD [ "python3", "./mediator.py", "--log-level", "1" ]
 

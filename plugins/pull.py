@@ -25,6 +25,8 @@ class PullCommand(CommandPlugin):
         return (shortname, fromTarget)
 
     def handler(argv, socket, cipherKey):
+        if len(argv) == 2:
+            argv.append(".")
         try:
             command, targetPath, operatorPath = argv
         except:
@@ -98,6 +100,8 @@ class PullCommand(CommandPlugin):
 
     def target(argv, socket, cipherKey):
         """Send a file to operator host (platform-agnostic)"""
+        if len(argv) == 2:
+            argv.append(".")
         try:
             command, targetPath, operatorPath = argv
         except Exception as e:

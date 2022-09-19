@@ -7,6 +7,8 @@ import tqdm
 class PushCommand(CommandPlugin):
     def handler(argv, socket, cipherKey):
         """Send a file to target host"""
+        if len(argv) == 2:
+            argv.append(".")
         try:
             command, operatorPath, targetPath = argv
         except Exception as e:
@@ -76,6 +78,8 @@ class PushCommand(CommandPlugin):
 
     def target(argv, socket, cipherKey):
         """Receive file from operator (platform-agnostic)"""
+        if len(argv) == 2:
+            argv.append(".")
         try:
             command, operatorPath, targetPath = argv
         except:

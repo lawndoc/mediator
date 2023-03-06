@@ -2,7 +2,7 @@ from Crypto.Cipher import AES
 from .interfaces import CommandPlugin
 from os import makedirs
 from os.path import getsize, isdir
-import pathlib
+from pathlib import Path
 import tqdm
 
 class PushCommand(CommandPlugin):
@@ -16,7 +16,7 @@ class PushCommand(CommandPlugin):
             # Error: couldn't parse command -- terminate command
             return
         # expand '..', '.', and '~' to full path
-        p = pathlib.Path(operatorPath)
+        p = Path(operatorPath)
         operatorPath = str(p.resolve())
         # make sure path points to an existing file
         if isdir(operatorPath) or not p.exists():
@@ -87,7 +87,7 @@ class PushCommand(CommandPlugin):
             # Error: couldn't parse command. Please check args and try again
             return
         # expand '..', '.', and '~' to full path and remove trailing /'s
-        p = pathlib.Path(targetPath)
+        p = Path(targetPath)
         targetPath = str(p.resolve())
         # get name of file to be saved
         shortname, nameFromOperator = PushCommand.getShortname(operatorPath, targetPath)

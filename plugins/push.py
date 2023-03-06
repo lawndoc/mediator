@@ -3,7 +3,7 @@ from .interfaces import CommandPlugin
 from os import makedirs
 from os.path import getsize, isdir
 from pathlib import Path
-import tqdm
+from tqdm import tqdm
 
 class PushCommand(CommandPlugin):
     def handler(argv, socket, cipherKey):
@@ -54,7 +54,7 @@ class PushCommand(CommandPlugin):
         if signal.decode() != "READY":
             print("Warning: ready signal garbled in transit")
         # send file
-        progress = tqdm.tqdm(range(filesize), "Sending file", unit="B", unit_scale=True, unit_divisor=1024)
+        progress = tqdm(range(filesize), "Sending file", unit="B", unit_scale=True, unit_divisor=1024)
         with open(operatorPath, "rb") as pullFile:
             while True:
                 bytesRead = pullFile.read(2048)

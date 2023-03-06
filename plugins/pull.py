@@ -3,7 +3,7 @@ from .interfaces import CommandPlugin
 from os import makedirs
 from os.path import getsize, isdir
 from pathlib import Path
-import tqdm
+from tqdm import tqdm
 
 class PullCommand(CommandPlugin):
     def getShortname(targetPath, operatorPath):
@@ -72,7 +72,7 @@ class PullCommand(CommandPlugin):
         socket.sendall(tag)
         socket.sendall(ciphertext)
         # start receiving file
-        progress = tqdm.tqdm(range(filesize), "Receiving file", unit="B", unit_scale=True, unit_divisor=1024)
+        progress = tqdm(range(filesize), "Receiving file", unit="B", unit_scale=True, unit_divisor=1024)
         while True:
             # receive file chunk (up to 2KB at a time)
             buffersize = min(2048, filesize-progress.n)

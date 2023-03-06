@@ -1,6 +1,7 @@
 from Crypto.Cipher import AES
 from .interfaces import CommandPlugin
-import os
+from os import makedirs
+from os.path import getsize, isdir
 import pathlib
 import tqdm
 
@@ -18,7 +19,7 @@ class PushCommand(CommandPlugin):
         p = pathlib.Path(operatorPath)
         operatorPath = str(p.resolve())
         # make sure path points to an existing file
-        if os.path.isdir(operatorPath) or not p.exists():
+        if isdir(operatorPath) or not p.exists():
             print("Error: operator path does not exist or is a directory")
             # send error message to target and terminate command
             cipher = AES.new(cipherKey, AES.MODE_EAX)
@@ -37,7 +38,7 @@ class PushCommand(CommandPlugin):
         if signal.decode() != "READY":
             print("Warning: ready signal garbled in transit")
         # send file size
-        filesize = os.path.getsize(operatorPath)
+        filesize = getsize(operatorPath)
         cipher = AES.new(cipherKey, AES.MODE_EAX)
         nonce = cipher.nonce
         ciphertext, tag = cipher.encrypt_and_digest(str(filesize).encode())
@@ -111,14 +112,14 @@ class PushCommand(CommandPlugin):
         # make directories that don't exist yet and open file for receiving
         if nameFromOperator:
             try:
-                os.makedirs(targetPath)
+                makedirs(targetPath)
             except FileExistsError:
                 pass
             pulledFile = open(targetPath + "/" + shortname, "wb")
         else:
             try:
                 if "/" in targetPath or "\\" in targetPath:
-                    os.makedirs(targetPath[:targetPath.rindex(shortname)])
+                    makedirs(targetPath[:targetPath.rindex(shortname)])
             except FileExistsError:
                 pass
             pulledFile = open(targetPath, "wb")
@@ -161,7 +162,7 @@ class PushCommand(CommandPlugin):
         # don't check if path is directory if call is recursive
         if operatorPath != targetPath:
             # if targetPath is a directory, get file name from operatoPath
-            if os.path.isdir(targetPath):
+            if isdir(targetPath):
                 shortname, _ = PushCommand.getShortname(operatorPath, operatorPath)
                 fromOperator = True
                 return (shortname, fromOperator)

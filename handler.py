@@ -137,15 +137,18 @@ class Handler:
                 cipher = PKCS1_OAEP.new(self.privKey)
                 aesKey = cipher.decrypt(message)
                 print("Key exchange successful...\n")
+            else:
+                print("ERROR: Connection timed out waiting for reverse shell")
+                retry = input("Retry? (Y/n): ")
+                if retry.lower() in ["n", "no"]:
+                    raise TimeoutError("Connection timed out waiting for reverse shell")
+                aesKey = self.keyExchange()
         except ValueError as e:
             print(f"Error: {e}")
             print(f"Ciphertext: {message}")
-            sys.exit(1)
-        except ConnectionResetError:
-            print("ERROR: Connection timed out waiting for reverse shell")
             retry = input("Retry? (Y/n): ")
             if retry.lower() in ["n", "no"]:
-                sys.exit(1)
+                raise KeyExchangeError(str(e))
             aesKey = self.keyExchange()
         return aesKey
 
@@ -198,3 +201,6 @@ if __name__ == "__main__":
         handler = Handler(mediatorHost=args.serverAddr)
     handler.run()
 
+
+class KeyExchangeError(Exception):
+    pass

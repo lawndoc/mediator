@@ -11,6 +11,7 @@ import select
 from socket import socket, AF_INET, SOCK_STREAM, IPPROTO_TCP, TCP_NODELAY
 import subprocess
 import threading
+from time import sleep
 
 
 class Mediator:
@@ -38,14 +39,20 @@ class Mediator:
         targetHandler = threading.Thread(target=self.handleTargets)
         operatorHandler = threading.Thread(target=self.handleOperators)
         bridgeWorker = threading.Thread(target=self.bridgeConnections)
+        targetGreenRoom = threading.Thread(target=self.greenRoom, args=("target"))
+        operatorGreenRoom = threading.Thread(target=self.greenRoom, args=("operator"))
         # run in the background
         targetHandler.daemon = True
         operatorHandler.daemon = True
         bridgeWorker.daemon = True
+        targetGreenRoom.daemon = True
+        operatorGreenRoom.daemon = True
         # start threads
         targetHandler.start()
         operatorHandler.start()
         bridgeWorker.start()
+        targetGreenRoom.start()
+        operatorGreenRoom.start()
         # wait for keyboard interrupt
         waiter = threading.Event()
         try:
@@ -90,8 +97,7 @@ class Mediator:
                     print(f"{datetime.utcnow()}Z -- INFO: Duplicate target key... Closing connection")
                 targetConnection.close()
                 continue
-            # echo back targetKey and add target to connections queue
-            targetConnection.send(targetKey)
+            # add target to connections queue
             self.targets[targetKey.decode()] = (targetConnection, datetime.utcnow())
             if self.logLevel >= 1:
                 print(f"{datetime.utcnow()}Z -- INFO: Reverse shell '{targetKey.decode()[16:]}' connected from {targetAddress[0]}...")
@@ -134,8 +140,7 @@ class Mediator:
                 operatorConnection.send("DUPLICATE".encode())
                 operatorConnection.close()
                 continue
-            # echo back operatorKey and add operator to connections queue
-            operatorConnection.send(operatorKey)
+            # add operator to connections queue
             self.operators[operatorKey.decode()] = (operatorConnection, datetime.utcnow())
             if self.logLevel >= 1:
                 print(f"{datetime.utcnow()}Z -- INFO: Operator '{operatorKey[16:]}' connected from {operatorAddress[0]}...")
@@ -145,29 +150,18 @@ class Mediator:
             # search for matching connection keys
             for connectionKey in list(self.operators):
                 if connectionKey in self.targets:
-                    # bridge connections with matching keys
-                    operatorConnection = self.operators[connectionKey][0]
-                    targetConnection = self.targets[connectionKey][0]
-                    self.applyBlackMagic(operatorConnection, targetConnection, connectionKey)
-                    # remove connections from matching queue
-                    self.operators.pop(connectionKey)
-                    self.targets.pop(connectionKey)
+                    try:
+                        # bridge connections with matching keys
+                        operatorConnection = self.operators[connectionKey][0]
+                        targetConnection = self.targets[connectionKey][0]
+                        self.applyBlackMagic(operatorConnection, targetConnection, connectionKey)
+                        # remove connections from matching queue
+                        self.operators.pop(connectionKey)
+                        self.targets.pop(connectionKey)
+                    except KeyError:
+                        # TODO: better handle race condition where connection is removed in green room right before it is bridged
+                        pass
                     continue
-                # close operator connection if timed out (waiting > 15 seconds)
-                timeout = timedelta(seconds=30) + self.operators[connectionKey][1]
-                if datetime.utcnow() > timeout:
-                    if self.logLevel >= 1:
-                        print(f"{datetime.utcnow()}Z -- INFO: Operator '{connectionKey[16:]}' from {self.operators[connectionKey][0].getpeername()[0]} timed out... Closing connection")
-                    self.operators[connectionKey][0].close()
-                    self.operators.pop(connectionKey)
-            # close timed out target connections (waiting > 15 seconds)
-            for connectionKey in list(self.targets):
-                timeout = timedelta(seconds=30) + self.targets[connectionKey][1]
-                if datetime.utcnow() > timeout:
-                    if self.logLevel >= 1:
-                        print(f"{datetime.utcnow()}Z -- INFO: Target '{connectionKey[16:]}' from {self.targets[connectionKey][0].getpeername()[0]} timed out... Closing connection")
-                    self.targets[connectionKey][0].close()
-                    self.targets.pop(connectionKey)
 
     def applyBlackMagic(self, operatorConnection, targetConnection, connectionKey):
         # connect the streams with GNU black magic
@@ -195,6 +189,9 @@ class Mediator:
         terminatorThread.daemon = True
         terminatorThread.start()
         self.connCount += 1
+        # signal to both sides that connection is ready
+        operatorConnection.send(connectionKey.encode())
+        targetConnection.send(connectionKey.encode())
 
     def waitAndTerminate(self, targetToOperator, operatorToTarget, targetSock, operatorSock, connID):
         # close connections when done
@@ -205,6 +202,46 @@ class Mediator:
         # connections terminated
         if self.logLevel >= 1:
             print(f"{datetime.utcnow()}Z -- INFO: Connection ID {connID} terminated.")
+            
+    def greenRoom(self, connectionType):
+        while True:
+            if connectionType == "target":
+                connectionDict = self.targets
+            elif connectionType == "operator":
+                connectionDict = self.operators
+            removalList = []
+            for connectionKey in list(connectionDict):
+                connSock = connectionDict[connectionKey][0]
+                connCreationTime = connectionDict[connectionKey][1]
+                if connectionType == "target":
+                    # target connections are allowed to be idle for 5 minutes since they can't close on their own
+                    if datetime.utcnow() - connCreationTime > timedelta(minutes=10):
+                        print(f"{datetime.utcnow()}Z -- INFO: {connectionType} '{connectionKey[16:]}' from {connSock.getpeername()[0]} timed out... Closing connection")
+                        removalList.append((connectionKey, connectionType))
+                        continue
+                connSock.send("PING".encode())
+                ready, _, _ = select.select([connSock], [], [], 5)
+                if ready:
+                    pong = connSock.recv(1024)
+                    if pong.decode() != "PONG":
+                        print(f"{datetime.utcnow()}Z -- ERROR: {connectionType} '{connectionKey[16:]}' from {connSock.getpeername()[0]} invalid ping response {pong.decode()}... Closing connection")
+                        removalList.append((connectionKey, connectionType))
+                else:
+                    print(f"{datetime.utcnow()}Z -- ERROR: {connectionType} '{connectionKey[16:]}' from {connSock.getpeername()[0]} didn't send a ping response... Closing connection")
+                    removalList.append((connectionKey, connectionType))
+            for connection in removalList:
+                try:
+                    if connection[1] == "target":
+                        self.targets.pop(connection[0])
+                    elif connection[1] == "operator":
+                        self.operators.pop(connection[0])
+                    else:
+                        print(f"Tried to remove unknown connection type '{connection[1]}'")
+                        exit(1)
+                except KeyError:
+                    # avoid race condition where connection is removed in another thread
+                    continue
+            sleep(10)
 
 
 if __name__ == "__main__":

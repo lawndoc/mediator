@@ -3,7 +3,7 @@ name: "Mediator Server Build"
 on:
   push:
     tags:
-      - v*
+      - 'v*'
   workflow_dispatch:
 
 env:

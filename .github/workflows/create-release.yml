@@ -1,12 +1,11 @@
-name: Create Release
+name: Release Binaries
 
 on: 
   push:
     tags:
-      - v*
+      - 'v*'
 
 jobs:
-
   build-linux:
     runs-on: ubuntu-latest
     permissions:

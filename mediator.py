@@ -39,8 +39,8 @@ class Mediator:
         targetHandler = threading.Thread(target=self.handleTargets)
         operatorHandler = threading.Thread(target=self.handleOperators)
         bridgeWorker = threading.Thread(target=self.bridgeConnections)
-        targetGreenRoom = threading.Thread(target=self.greenRoom, args=("target"))
-        operatorGreenRoom = threading.Thread(target=self.greenRoom, args=("operator"))
+        targetGreenRoom = threading.Thread(target=self.greenRoom, args=["target"])
+        operatorGreenRoom = threading.Thread(target=self.greenRoom, args=["operator"])
         # run in the background
         targetHandler.daemon = True
         operatorHandler.daemon = True

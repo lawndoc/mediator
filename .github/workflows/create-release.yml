@@ -1,0 +1,53 @@
+name: Create Release
+
+on: 
+  push:
+    tags:
+    - '*'
+
+jobs:
+
+  build-linux:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Build binaries
+      uses: sayyid5416/pyinstaller@v1
+      with:
+        python_ver: '3.11'
+        spec: 'pyinstaller/linuxTarget.spec'
+        requirements: 'requirements.txt'
+        exe_path: .
+
+    - uses: ncipollo/release-action@v1
+      with:
+        draft: true
+        artifactErrorsFailBuild: true
+        artifacts: "LinuxClient"
+
+  build-windows:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Build binaries
+      uses: sayyid5416/pyinstaller@v1
+      with:
+        python_ver: '3.11'
+        spec: 'pyinstaller/windowsTarget.spec'
+        requirements: 'requirements.txt'
+        exe_path: .
+    
+    - name: Update release
+      uses: ncipollo/release-action@v1
+      with:
+        allowUpdates: true
+        updateOnlyUnreleased: true
+        generateReleaseNotes: true
+        artifactErrorsFailBuild: true
+        artifacts: "WindowsClient.exe"

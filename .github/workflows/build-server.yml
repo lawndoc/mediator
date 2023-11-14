@@ -1,4 +1,4 @@
-name: "Commander Tests/Build"
+name: "Mediator Server Build"
 
 on:
   push:
@@ -31,7 +31,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/mediator/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/lawndoc/${{ env.IMAGE_NAME }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5

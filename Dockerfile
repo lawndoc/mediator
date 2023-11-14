@@ -6,12 +6,12 @@ FROM lsiobase/ubuntu:jammy AS builder-image
 ARG DEBIAN_FRONTEND=noninteractive
 
 # install python
-RUN apt-get update && apt-get install --no-install-recommends -y python3.12 python3.12-dev python3.12-venv python3-pip python3-wheel build-essential && \
+RUN apt-get update && apt-get install --no-install-recommends -y python3.11 python3.11-dev python3.11-venv python3-pip python3-wheel build-essential && \
 	apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # create and activate virtual environment
 # using final folder name to avoid path issues with packages
-RUN python3.12 -m venv /home/abc/venv
+RUN python3.11 -m venv /home/abc/venv
 ENV PATH="/home/abc/venv/bin:$PATH"
 
 # install requirements
@@ -23,7 +23,7 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 FROM lsiobase/ubuntu:jammy AS runner-image
 
 # install python
-RUN apt-get update && apt-get install --no-install-recommends -y python3.12 python3-venv && \
+RUN apt-get update && apt-get install --no-install-recommends -y python3.11 python3-venv && \
 	apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # use unprivileged user and virtual environment

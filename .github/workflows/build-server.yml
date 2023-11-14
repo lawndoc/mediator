@@ -3,8 +3,7 @@ name: "Mediator Server Build"
 on:
   push:
     tags:
-      - 'v*'
-  workflow_dispatch:
+      - 'v**'
 
 env:
   REGISTRY: ghcr.io

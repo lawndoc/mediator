@@ -10,8 +10,8 @@ on:
       - mediator.py
       - Dockerfile
       - requirements.txt
-      - plugins/
-      - pyinstaller/
+      - plugins/**
+      - pyinstaller/**
   workflow_dispatch:
 
 jobs:

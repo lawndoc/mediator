@@ -118,16 +118,16 @@ class ReverseShell:
             if ready:
                 signal = self.handler.recv(1024)
             else:
-                print("Connection timed out")
+                print("\nServer timed out")
                 continue
             if signal.decode() == "PING":
                 self.handler.sendall("PONG".encode())
                 print(".", end="", flush=True)
             elif signal.decode() == "TIMEOUT":
-                print("\nConnection timed out")
+                print("\nHandler connection timed out")
                 exit(1)
             elif signal.decode() == self.connectionKey:
-                print("\nConnection established")
+                print("\nHandler connection established")
                 break
             else:
                 print("\nCRITIAL: Connection key validation failed")

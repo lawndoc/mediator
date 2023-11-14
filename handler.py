@@ -164,13 +164,16 @@ class Handler:
             if ready:
                 signal = self.shell.recv(1024)
             else:
-                print("Connection timed out")
+                print("Server timed out")
                 continue
             if signal.decode() == "PING":
                 self.shell.sendall("PONG".encode())
                 print(".", end="", flush=True)
+            elif signal.decode() == "TIMEOUT":
+                print("\nTarget connection timed out")
+                exit(1)
             elif signal.decode() == self.connectionKey:
-                print("\nConnection established")
+                print("\nTarget connection established")
                 break
             else:
                 print("\nCRITIAL: Connection key validation failed")

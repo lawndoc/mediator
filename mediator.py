@@ -215,8 +215,9 @@ class Mediator:
                 connCreationTime = connectionDict[connectionKey][1]
                 if connectionType == "target":
                     # target connections are allowed to be idle for 5 minutes since they can't close on their own
-                    if datetime.utcnow() - connCreationTime > timedelta(minutes=10):
+                    if datetime.utcnow() - connCreationTime > timedelta(minutes=5):
                         print(f"{datetime.utcnow()}Z -- INFO: {connectionType} '{connectionKey[16:]}' from {connSock.getpeername()[0]} timed out... Closing connection")
+                        connSock.send("TIMEOUT".encode())
                         removalList.append((connectionKey, connectionType))
                         continue
                 connSock.send("PING".encode())

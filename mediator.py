@@ -83,12 +83,12 @@ class Mediator:
             try:
                 if targetKey.decode()[:16] != "#!ConnectionKey_":
                     if self.logLevel >= 2:
-                        print(f"{datetime.utcnow()}Z -- DEBUG: Invalid connection key '{targetKey}' sent by target {targetAddress[0]}... Closing connection")
+                        print(f"{datetime.utcnow()}Z -- DEBUG: Invalid connection key '{targetKey.decode()}' sent by target {targetAddress[0]}... Closing connection")
                     targetConnection.close()
                     continue
             except Exception:
                 if self.logLevel >= 2:
-                    print(f"{datetime.utcnow()}Z -- ERROR: unable to read connection key '{targetKey}' from target {targetAddress[0]}...")
+                    print(f"{datetime.utcnow()}Z -- ERROR: unable to read connection key '{targetKey.decode()}' from target {targetAddress[0]}...")
                 targetConnection.close()
                 continue
             # don't allow duplicate waiting connection keys
@@ -125,12 +125,12 @@ class Mediator:
             try:
                 if operatorKey.decode()[:16] != "#!ConnectionKey_":
                     if self.logLevel >= 2:
-                        print(f"{datetime.utcnow()}Z -- DEBUG: Invalid connection key '{operatorKey}' sent by operator {operatorAddress[0]}... Closing connection")
+                        print(f"{datetime.utcnow()}Z -- DEBUG: Invalid connection key '{operatorKey.decode()}' sent by operator {operatorAddress[0]}... Closing connection")
                     operatorConnection.close()
                     continue
             except Exception:
                 if self.logLevel >= 2:
-                    print(f"{datetime.utcnow()}Z -- ERROR: unable to read connection key '{operatorKey}' from operator {operatorAddress[0]}...")
+                    print(f"{datetime.utcnow()}Z -- ERROR: unable to read connection key '{operatorKey.decode()}' from operator {operatorAddress[0]}...")
                 operatorConnection.close()
                 continue
             # don't allow duplicate waiting connection keys
@@ -143,7 +143,7 @@ class Mediator:
             # add operator to connections queue
             self.operators[operatorKey.decode()] = (operatorConnection, datetime.utcnow())
             if self.logLevel >= 1:
-                print(f"{datetime.utcnow()}Z -- INFO: Operator '{operatorKey[16:]}' connected from {operatorAddress[0]}...")
+                print(f"{datetime.utcnow()}Z -- INFO: Operator '{operatorKey.decode()[16:]}' connected from {operatorAddress[0]}...")
 
     def bridgeConnections(self):
         while True:

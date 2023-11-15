@@ -88,7 +88,7 @@ class Mediator:
                     continue
             except Exception:
                 if self.logLevel >= 2:
-                    print(f"{datetime.utcnow()}Z -- ERROR: unable to read connection key '{targetKey.decode()}' from target {targetAddress[0]}...")
+                    print(f"{datetime.utcnow()}Z -- ERROR: unable to read connection key '{targetKey}' from target {targetAddress[0]}...")
                 targetConnection.close()
                 continue
             # don't allow duplicate waiting connection keys
@@ -130,7 +130,7 @@ class Mediator:
                     continue
             except Exception:
                 if self.logLevel >= 2:
-                    print(f"{datetime.utcnow()}Z -- ERROR: unable to read connection key '{operatorKey.decode()}' from operator {operatorAddress[0]}...")
+                    print(f"{datetime.utcnow()}Z -- ERROR: unable to read connection key '{operatorKey}' from operator {operatorAddress[0]}...")
                 operatorConnection.close()
                 continue
             # don't allow duplicate waiting connection keys

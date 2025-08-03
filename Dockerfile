@@ -1,6 +1,6 @@
 ### Builder image
 # using ubuntu LTS version
-FROM ubuntu:latest AS builder-image
+FROM ubuntu:24.10 AS builder-image
 
 # avoid stuck build due to user prompt
 ARG DEBIAN_FRONTEND=noninteractive
@@ -20,7 +20,7 @@ RUN pip3 install --no-cache-dir wheel
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 ### Runner image
-FROM ubuntu:latest AS runner-image
+FROM ubuntu:24.10 AS runner-image
 
 # install python
 RUN apt-get update && apt-get install --no-install-recommends -y python3.11 python3-venv && \
